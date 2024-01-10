@@ -11,7 +11,7 @@ const API_KEY = "vernaison::stepzen.net+1000::c5cfeb118597d4868d41a66215a251de47
 const client = new ApolloClient({
   uri: "https://vernaison.stepzen.net/api/right-hamster/__graphql",
   headers: {
-    Authorization: 'Apikey ${API_KEY}',
+    Authorization: `Apikey ${API_KEY}`,
   },
   cache: new InMemoryCache(),
 });
