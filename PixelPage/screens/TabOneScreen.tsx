@@ -1,10 +1,11 @@
-import { ActivityIndicator, StyleSheet, FlatList } from "react-native";
+import { ActivityIndicator, StyleSheet, FlatList, TextInput, Button } from "react-native";
 
 import EditScreenInfo from "../components/EditScreenInfo";
 import { Text, View } from "../components/Themed";
 import { RootTabScreenProps } from "../types";
-import { gql, useQuery } from "@apollo/client";
+import { gql, useQuery,  useLazyQuery } from "@apollo/client";
 import BookItem from "../components/Bookitem";
+import { useState } from "react";
 
 const query = gql`
   query SearchBooks($q: String) {
@@ -41,14 +42,22 @@ const query = gql`
 export default function TabOneScreen({
   navigation,
 }: RootTabScreenProps<'TabOne'>) {
-  const { data, loading, error } = useQuery(query, {
-    variables: { q: 'Harry Potter' },
-  });
+  const [search, setSearch] = useState("")
+  const [runQuery, { data, loading, error }] = useLazyQuery(query);
 
   console.log(JSON.stringify(data, null, 2));
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <TextInput 
+          value={search} 
+          onChangeText={setSearch}
+          placeholder="Search Books" 
+          style={styles.input}
+        />
+        <Button title='Search' onPress={() => runQuery({variables: {q: search}})}/>
+      </View>
       {loading && <ActivityIndicator />}
       {error && (
         <View style={styles.container}>
@@ -62,9 +71,9 @@ export default function TabOneScreen({
           <BookItem
             book={{
               title: item.volumeInfo.title,
-              image: item.volumeInfo.imageLinks.thumbnail,
+              image: item.volumeInfo.imageLinks?.thumbnail,
               authors: item.volumeInfo.authors,
-              isbn: item.volumeInfo.industryIdentifiers[0].identifier,
+              isbn: item.volumeInfo.industryIdentifiers?.[0]?.identifier,
             }}
           />
         )}
@@ -88,4 +97,15 @@ const styles = StyleSheet.create({
     height: 1,
     width: "80%",
   },
+  header: {
+    alignItems: "center",
+    flexDirection: "row",
+  },
+  input: {
+    flex: 1,
+    borderColor: 'gainsboro',
+    borderRadius: 5,
+    padding: 10,
+    marginVertical: 5,
+  }
 });
