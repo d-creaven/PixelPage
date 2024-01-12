@@ -49,6 +49,23 @@ export default function TabOneScreen({
 
   const [runQuery, { data, loading, error }] = useLazyQuery(query);
 
+  const parseBook = (item: any): Book => {
+    if(provider === "googleBooksSearch") {
+      return {
+        title: item.volumeInfo.title,
+        image: item.volumeInfo.imageLinks?.thumbnail,
+        authors: item.volumeInfo.authors,
+        isbn: item.volumeInfo.industryIdentifiers?.[0]?.identifier,
+      };
+    }
+    return {
+      image: `https://covers.openlibrary.org/b/olid/${item.cover_edition_key}-M.jpg`,
+      title: item.title,
+      authors: item.author_name,
+      isbn: item.isbn?.[0],
+    };
+  }
+
   console.log(JSON.stringify(data, null, 2));
 
   return (
@@ -64,8 +81,26 @@ export default function TabOneScreen({
       </View>
 
       <View style={styles.tabs}> 
-        <Text style={provider === "googleBooksSearch" ? {fontWeight: 'bold'}: {}}>Google Books</Text>
-        <Text>Open Libary</Text>
+        <Text 
+          style={
+            provider === "googleBooksSearch"
+              ? {fontWeight: 'bold', color: "royalblue"}
+              : {}
+          }
+          onPress={() => setProvider("googleBooksSearch")}
+        >
+          Google Books
+        </Text>
+        <Text 
+          style={
+            provider === "openLibrarySearch"
+              ? {fontWeight: 'bold', color: "royalblue"}
+              : {}
+          }
+          onPress={() => setProvider("openLibrarySearch")}
+        >
+          Open Libary
+        </Text>
       </View>
 
       {loading && <ActivityIndicator />}
@@ -76,19 +111,14 @@ export default function TabOneScreen({
         </View>
       )}
       <FlatList
-        data={data?.googleBooksSearch?.items || []}
-        renderItem={({ item }) => (
-          <BookItem
-            book={{
-              title: item.volumeInfo.title,
-              image: item.volumeInfo.imageLinks?.thumbnail,
-              authors: item.volumeInfo.authors,
-              isbn: item.volumeInfo.industryIdentifiers?.[0]?.identifier,
-            }}
-          />
-        )}
-  showsVerticalScrollIndicator={false}
-/>
+        data={
+          provider === "googleBooksSearch"
+            ? data?.googleBooksSearch?.items 
+            : data?.openLibrarySearch?.docs || []
+        }
+        showsVerticalScrollIndicator={false}
+        renderItem={({ item }) => <BookItem book={parseBook(item)}/>}
+      />
     </View>
   );
 }
