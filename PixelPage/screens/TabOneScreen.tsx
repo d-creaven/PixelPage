@@ -66,7 +66,7 @@ export default function TabOneScreen({
     };
   }
 
-  console.log(JSON.stringify(data, null, 2));
+  // console.log(JSON.stringify(data, null, 2));
 
   return (
     <View style={styles.container}>
