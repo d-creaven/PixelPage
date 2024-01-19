@@ -1,8 +1,6 @@
 import { ActivityIndicator, FlatList, TextInput, Button } from "react-native";
 
-import EditScreenInfo from "../../components/EditScreenInfo";
 import { Text, View } from "../../components/Themed";
-import { RootTabScreenProps } from "../../types";
 import { useLazyQuery } from "@apollo/client";
 import BookItem from "../../components/Bookitem";
 import { useState } from "react";
