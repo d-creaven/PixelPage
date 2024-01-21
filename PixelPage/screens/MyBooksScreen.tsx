@@ -1,7 +1,8 @@
-import { FlatList, StyleSheet } from 'react-native';
+import { Button, FlatList, StyleSheet } from 'react-native';
 import { View } from '../components/Themed';
 import { useMyBooks } from '../context/MyBooksProvider';
 import BookItem from '../components/Bookitem';
+import { FIREBASE_AUTH } from '../FireBaseConfig';
 
 export default function MyBooksScreen() {
   const { savedBooks } = useMyBooks();
@@ -12,6 +13,7 @@ export default function MyBooksScreen() {
         data={savedBooks}
         renderItem={({item}) => <BookItem book={item} />}
       />
+      <Button onPress={() => FIREBASE_AUTH.signOut()} title="Sign Out" />
     </View>
   );
 }
