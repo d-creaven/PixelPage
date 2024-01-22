@@ -15,7 +15,9 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'
     setIsLoading(true);
     try {
       const response = await signInWithEmailAndPassword(auth, email, password);
+      console.log(response);
     }catch (error: any) {
+      console.log(error);
       alert("Invalid email or password" + error.message)
     }finally {
       setIsLoading(false);
@@ -26,8 +28,10 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'
     setIsLoading(true);
     try {
       const response = await createUserWithEmailAndPassword(auth, email, password);
+      console.log(response);
       alert("User created successfully, check email!");
     }catch (error: any) {
+      console.log(error);
       alert("Invalid email or password" + error.message)
     }finally {
       setIsLoading(false);

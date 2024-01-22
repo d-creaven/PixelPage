@@ -13,6 +13,7 @@ export default function MyBooksScreen() {
         data={savedBooks}
         renderItem={({item}) => <BookItem book={item} />}
       />
+      <Button onPress={() => FIREBASE_AUTH.signOut()} title="Sign Out" />
     </View>
   );
 }
