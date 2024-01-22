@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { auth } from '../FirebaseConfig';
 
 export default function ProfileScreen() {
   
@@ -28,6 +29,9 @@ export default function ProfileScreen() {
       <Text style={styles.bio}>{userData.bio}</Text>
       <TouchableOpacity style={styles.button}>
         <Text style={styles.buttonText}>Edit Profile</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={() => auth.signOut()}>
+        <Text style={styles.buttonText}>Sign Out</Text>
       </TouchableOpacity>
       
     </ScrollView>
