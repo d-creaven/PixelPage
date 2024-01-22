@@ -22,6 +22,7 @@ import LoginScreen from '../screens/LoginScreen';
 import { useEffect, useState } from 'react';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../FirebaseConfig';
+import ProfileScreen from '../screens/ProfileScreen';
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
   return (
@@ -85,6 +86,14 @@ function BottomTabNavigator() {
         options={({ navigation }: RootTabScreenProps<'Search'>) => ({
           tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} />,
           headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="My Books"
+        component={MyBooksScreen}
+        options={({ navigation }: RootTabScreenProps<'My Books'>) => ({
+          tabBarIcon: ({ color }) => <TabBarIcon name="book" color={color} />,
+          headerShown: true,
           headerRight: () => (
             <Pressable
               onPress={() => navigation.navigate('Modal')}
@@ -102,10 +111,10 @@ function BottomTabNavigator() {
         })}
       />
       <BottomTab.Screen
-        name="My Books"
-        component={MyBooksScreen}
+        name="Profile"
+        component={ProfileScreen}
         options={{
-          tabBarIcon: ({ color }) => <TabBarIcon name="book" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
         }}
       />
     </BottomTab.Navigator>
