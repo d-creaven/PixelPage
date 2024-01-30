@@ -1,5 +1,7 @@
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
-import { ScrollView, View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { ScrollView, View, Text, Image, StyleSheet, TouchableOpacity, Button } from 'react-native';
 
 const BookDetailsScreen = ({ route }) => {
   // Assuming you're passing a `book` object in your navigation route params
@@ -14,6 +16,18 @@ const BookDetailsScreen = ({ route }) => {
   const onPurchaseFormatChange = (format) => {
     console.log('Purchase format changed:', format);
   };
+
+  const navigation = useNavigation();
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 10 }}>
+          <Ionicons name="arrow-back" size={24} color="black" />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
 
   return (
     <ScrollView style={styles.container}>
