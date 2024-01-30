@@ -18,6 +18,9 @@ export const searchQuery = gql`
             identifier
             type
           }
+          categories
+          publishedDate
+          pageCount
         }
       }
     }

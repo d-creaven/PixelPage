@@ -1,5 +1,4 @@
 import { ActivityIndicator, FlatList, TextInput, Button, TouchableOpacity } from "react-native";
-
 import { Text, View } from "../../components/Themed";
 import { useLazyQuery } from "@apollo/client";
 import BookItem from "../../components/Bookitem";

@@ -8,6 +8,11 @@ export const parseBook = (
         image: item.volumeInfo.imageLinks?.thumbnail,
         authors: item.volumeInfo.authors,
         isbn: item.volumeInfo.industryIdentifiers?.[0]?.identifier,
+        averageRating: item.volumeInfo.averageRating,
+        publishedDate: item.volumeInfo.publishedDate,
+        pageCount: item.volumeInfo.pageCount,
+        description: item.volumeInfo.description,
+        genres: item.volumeInfo?.categories,
       };
     }
     return {
