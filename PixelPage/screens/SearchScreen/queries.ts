@@ -30,6 +30,9 @@ export const searchQuery = gql`
         title
         cover_edition_key
         isbn
+        publish_date
+        ratings_average
+        subject
       }
     }
   }

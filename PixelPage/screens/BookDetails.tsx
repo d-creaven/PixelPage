@@ -25,6 +25,9 @@ const BookDetailsScreen = ({ route }) => {
 
   const navigation = useNavigation();
 
+  const [descriptionExpanded, setDescriptionExpanded] = React.useState(false);
+
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerLeft: () => (
@@ -44,7 +47,25 @@ const BookDetailsScreen = ({ route }) => {
         <Text style={styles.rating}>
           {book.averageRating ? `Average Rating: ${book.averageRating}` : 'Rating not available'}
         </Text>
-        <Text style={styles.description}>{book.description}</Text>
+        <Text style={styles.description}>
+          {book.description ? (
+            descriptionExpanded ? 
+            book.description : 
+            `${book.description.substring(0, 200)}...`
+          ) : (
+            'No description available.'
+          )}
+        </Text>
+        {book.description && book.description.length > 200 && (
+          <Pressable
+            onPress={() => setDescriptionExpanded(!descriptionExpanded)}
+            style={styles.showMoreButton}
+          >
+            <Text style={styles.showMoreText}>
+              {descriptionExpanded ? 'Show Less' : 'Show More'}
+            </Text>
+          </Pressable>
+        )}
         <View style={styles.genreContainer}>
           {book.genres && book.genres.map((genre) => (
             <TouchableOpacity key={genre} style={styles.genreBadge}>
@@ -129,6 +150,13 @@ const styles = StyleSheet.create({
   buttonText:{
     color: "white",
     fontWeight: "600",
+  },
+  showMoreButton: {
+    padding: 10,
+    alignItems: 'center'
+  },
+  showMoreText: {
+    color: 'blue',
   },
   // Add styles for dropdowns/pickers and any other additional elements
 });

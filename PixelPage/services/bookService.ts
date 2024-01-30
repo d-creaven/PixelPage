@@ -16,9 +16,14 @@ export const parseBook = (
       };
     }
     return {
-      image: `https://covers.openlibrary.org/b/olid/${item.cover_edition_key}-M.jpg`,
       title: item.title,
+      image: `https://covers.openlibrary.org/b/olid/${item.cover_edition_key}-M.jpg`,
       authors: item.author_name,
       isbn: item.isbn?.[0],
+      averageRating: item.ratings_average,
+      publishedDate: item.publish_date,
+      pageCount: item.pageCount,
+      description: item.description,
+      genres: item.subject,
     };
   };
