@@ -23,6 +23,7 @@ import { useEffect, useState } from 'react';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../FirebaseConfig';
 import ProfileScreen from '../screens/ProfileScreen';
+import BookDetailsScreen from '../screens/BookDetails';
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
   return (
@@ -61,6 +62,7 @@ function RootNavigator() {
       <Stack.Group screenOptions={{ presentation: 'modal' }}>
         <Stack.Screen name="Modal" component={ModalScreen} />
       </Stack.Group>
+      <Stack.Screen name="BookDetails" component={BookDetailsScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }

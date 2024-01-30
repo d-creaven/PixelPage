@@ -1,4 +1,4 @@
-import { ActivityIndicator, FlatList, TextInput, Button } from "react-native";
+import { ActivityIndicator, FlatList, TextInput, Button, TouchableOpacity } from "react-native";
 
 import { Text, View } from "../../components/Themed";
 import { useLazyQuery } from "@apollo/client";
@@ -8,6 +8,7 @@ import { SafeAreaView } from "react-native-safe-area-context"
 import { searchQuery } from "./queries";
 import { parseBook } from "../../services/bookService";
 import styles from "./styles";
+import { useNavigation } from "@react-navigation/native";
 
 
 export default function SearchScreen() {
@@ -15,6 +16,13 @@ export default function SearchScreen() {
   const [provider, setProvider] = useState<BookProvider>("googleBooksSearch");
 
   const [runQuery, { data, loading, error }] = useLazyQuery(searchQuery);
+
+  const navigation = useNavigation();
+
+  const handleSelectBook = (book) => {
+    // Navigate to the BookDetails screen with parameters
+    navigation.navigate('BookDetails', { book });
+  };
 
   return (
     <SafeAreaView edges={["top"]} style={styles.container}>
@@ -65,7 +73,11 @@ export default function SearchScreen() {
             : data?.openLibrarySearch?.docs || []
         }
         showsVerticalScrollIndicator={false}
-        renderItem={({ item }) => <BookItem book={parseBook(item, provider)}/>}
+        renderItem={({ item }) => (
+          <TouchableOpacity onPress={() => handleSelectBook(parseBook(item, provider))}>
+            <BookItem book={parseBook(item, provider)}/>
+          </TouchableOpacity>
+        )} 
       />
     </SafeAreaView>
   );
