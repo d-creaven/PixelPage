@@ -1,18 +1,25 @@
-import { StatusBar } from 'expo-status-bar';
-import { Platform, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, Button } from 'react-native';
+import { auth } from '../FirebaseConfig'; // Adjust the import path as needed
 
-import EditScreenInfo from '../components/EditScreenInfo';
-import { Text, View } from '../components/Themed';
+export default function ModalScreen({ navigation }) {
 
-export default function ModalScreen() {
+  const handleSignOut = () => {
+    navigation.navigate('Profile'); // Adjust the navigation route as necessary
+    auth.signOut();
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Modal</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="/screens/ModalScreen.tsx" />
-
-      {/* Use a light status bar on iOS to account for the black space above the modal */}
-      <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
+      <Text style={styles.title}>Settings</Text>
+      <Button
+        title="Edit Profile"
+        onPress={() => navigation.navigate('EditProfileScreen')} // Adjust the navigation route as necessary
+      />
+      <Button
+        title="Sign Out"
+        onPress={handleSignOut}
+      />
     </View>
   );
 }
@@ -25,11 +32,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
+    marginBottom: 20,
   },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
-  },
+  // Add other styles as needed
 });
+

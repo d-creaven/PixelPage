@@ -4,6 +4,8 @@ import { RootStackScreenProps } from '../types';
 import { useState } from 'react';
 import { auth } from '../FirebaseConfig';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { setDoc, doc } from 'firebase/firestore'; 
+import { db } from '../FirebaseConfig';
 
 export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'>) {
   const [email, setEmail] = useState('');
@@ -13,16 +15,29 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'
   const handleSignUp = async () => {
     setIsLoading(true);
     try {
-      const response = await createUserWithEmailAndPassword(auth, email, password);
-      console.log(response);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      // Create a user profile document in Firestore with default values
+      await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        email: user.email,
+        username: 'New User', // Default username
+        reviewsCount: 0, // Default reviews count
+        followersCount: 0, // Default followers count
+        followingCount: 0, // Default following count
+        bio: 'No bio provided.', // Default bio
+      });
       alert("User created successfully, check email!");
-    }catch (error: any) {
-      console.log(error);
-      alert("Invalid email or password" + error.message)
-    }finally {
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error);
+        alert("Invalid email or password " + error.message);
+      }
+    } finally {
       setIsLoading(false);
     }
   };
+  
 
   const handleLogin = async () => {
     setIsLoading(true);

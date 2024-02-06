@@ -1,16 +1,33 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
-import { auth } from '../FirebaseConfig';
+import { auth, db } from '../FirebaseConfig';
+import { doc, getDoc } from 'firebase/firestore';
 
 export default function ProfileScreen() {
-  
-  const userData = {
-    username: 'Username',
-    reviewsCount: 11,
-    followersCount: 15,
-    followingCount: 21,
-    bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent a velit ornare, viverra erat in, mollis odio. Aenean quis erat congue, finibus ante nec, rutrum nisl.',
-  };
+  const [userData, setUserData] = useState({
+    username: 'Loading...',
+    reviewsCount: 0,
+    followersCount: 0,
+    followingCount: 0,
+    bio: '',
+  });
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (auth.currentUser) {
+        const userDocRef = doc(db, "users", auth.currentUser.uid);
+        const docSnap = await getDoc(userDocRef);
+
+        if (docSnap.exists()) {
+          setUserData(docSnap.data());
+        } else {
+          console.log("No such document!");
+        }
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   return (
     <ScrollView style={styles.container}>

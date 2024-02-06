@@ -96,6 +96,14 @@ function BottomTabNavigator() {
         options={({ navigation }: RootTabScreenProps<'My Books'>) => ({
           tabBarIcon: ({ color }) => <TabBarIcon name="book" color={color} />,
           headerShown: true,
+        })}
+      />
+      <BottomTab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={({ navigation }: RootTabScreenProps<'Profile'>) => ({
+          tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
+          headerShown: true,
           headerRight: () => (
             <Pressable
               onPress={() => navigation.navigate('Modal')}
@@ -111,13 +119,6 @@ function BottomTabNavigator() {
             </Pressable>
           ),
         })}
-      />
-      <BottomTab.Screen
-        name="Profile"
-        component={ProfileScreen}
-        options={{
-          tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
-        }}
       />
     </BottomTab.Navigator>
   );
