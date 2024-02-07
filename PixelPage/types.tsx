@@ -21,6 +21,7 @@ export type RootStackParamList = {
   BookDetails: {
     book: Book;
   };
+  EditProfile: undefined;
 };
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> = NativeStackScreenProps<

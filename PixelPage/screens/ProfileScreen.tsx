@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { auth, db } from '../FirebaseConfig';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 
 export default function ProfileScreen() {
   const [userData, setUserData] = useState({
@@ -13,20 +13,29 @@ export default function ProfileScreen() {
   });
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      if (auth.currentUser) {
-        const userDocRef = doc(db, "users", auth.currentUser.uid);
-        const docSnap = await getDoc(userDocRef);
-
-        if (docSnap.exists()) {
-          setUserData(docSnap.data());
+    if (auth.currentUser) {
+      const unsubscribe = onSnapshot(doc(db, 'users', auth.currentUser.uid), (document) => {
+        if (document.exists()) {
+          const data = document.data();
+          setUserData({
+            username: data.username || '', // Provide a default value if the field is not set
+            reviewsCount: data.reviewsCount || 0,
+            followersCount: data.followersCount || 0,
+            followingCount: data.followingCount || 0,
+            bio: data.bio || '',
+            // Add other fields as needed, with default values
+          });
         } else {
-          console.log("No such document!");
+          // Handle the case where the document does not exist
         }
-      }
-    };
-
-    fetchUserData();
+      }, (error) => {
+        // Handle the error
+        console.error("Error fetching user data: ", error);
+      });
+  
+      // Cleanup listener when the component unmounts
+      return () => unsubscribe();
+    }
   }, []);
 
   return (

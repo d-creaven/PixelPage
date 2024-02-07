@@ -12,7 +12,13 @@ export default function ModalScreen({ navigation }) {
 
   return (
     <ScrollView style={styles.container}>
-      <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('EditProfile')}>
+      <TouchableOpacity
+        style={styles.option}
+        onPress={() => {
+          navigation.goBack();
+          navigation.navigate('EditProfile'); // Navigates to the EditProfileScreen. // This will close the modal.
+        }}
+      >
         <Text style={styles.optionText}>Edit Profile</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('Settings')}>

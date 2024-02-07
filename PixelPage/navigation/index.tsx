@@ -24,6 +24,7 @@ import { User, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../FirebaseConfig';
 import ProfileScreen from '../screens/ProfileScreen';
 import BookDetailsScreen from '../screens/BookDetails';
+import EditProfileScreen from '../screens/EditProfileScreen';
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
   return (
@@ -63,6 +64,7 @@ function RootNavigator() {
         <Stack.Screen name="Modal" component={ModalScreen} />
       </Stack.Group>
       <Stack.Screen name="BookDetails" component={BookDetailsScreen} options={{ headerShown: true }} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ headerShown: true }} />
     </Stack.Navigator>
   );
 }
