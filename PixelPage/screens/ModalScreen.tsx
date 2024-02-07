@@ -1,39 +1,52 @@
 import React from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { auth } from '../FirebaseConfig'; // Adjust the import path as needed
 
 export default function ModalScreen({ navigation }) {
 
   const handleSignOut = () => {
-    navigation.navigate('Profile'); // Adjust the navigation route as necessary
-    auth.signOut();
+    navigation.navigate('Profile');
+    auth.signOut().then(() => {
+    });
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Settings</Text>
-      <Button
-        title="Edit Profile"
-        onPress={() => navigation.navigate('EditProfileScreen')} // Adjust the navigation route as necessary
-      />
-      <Button
-        title="Sign Out"
-        onPress={handleSignOut}
-      />
-    </View>
+    <ScrollView style={styles.container}>
+      <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('EditProfile')}>
+        <Text style={styles.optionText}>Edit Profile</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('Settings')}>
+        <Text style={styles.optionText}>Settings</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.option} onPress={handleSignOut}>
+        <Text style={styles.optionText}>Sign Out</Text>
+      </TouchableOpacity>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#fff',
   },
   title: {
-    fontSize: 20,
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginTop: 20,
     marginBottom: 20,
+    marginLeft: 20,
+  },
+  option: {
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    marginLeft: 20,
+  },
+  optionText: {
+    fontSize: 18,
   },
   // Add other styles as needed
 });
+
 

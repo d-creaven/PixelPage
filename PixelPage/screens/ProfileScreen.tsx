@@ -44,13 +44,6 @@ export default function ProfileScreen() {
         </View>
       </View>
       <Text style={styles.bio}>{userData.bio}</Text>
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Edit Profile</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={() => auth.signOut()}>
-        <Text style={styles.buttonText}>Sign Out</Text>
-      </TouchableOpacity>
-      
     </ScrollView>
   );
 };
