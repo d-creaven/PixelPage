@@ -3,24 +3,39 @@ import { Text, View } from "../../components/Themed";
 import { useLazyQuery } from "@apollo/client";
 import BookItem from "../../components/Bookitem";
 import { useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context"
+import { SafeAreaView } from "react-native-safe-area-context";
 import { searchQuery } from "./queries";
 import { parseBook } from "../../services/bookService";
 import styles from "./styles";
 import { useNavigation } from "@react-navigation/native";
-
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "../../FirebaseConfig";
 
 export default function SearchScreen() {
   const [search, setSearch] = useState("");
-  const [provider, setProvider] = useState<BookProvider>("googleBooksSearch");
+  const [searchMode, setSearchMode] = useState<"books" | "users">("books");
+  const [usersData, setUsersData] = useState([]);
 
   const [runQuery, { data, loading, error }] = useLazyQuery(searchQuery);
-
   const navigation = useNavigation();
 
   const handleSelectBook = (book) => {
-    // Navigate to the BookDetails screen with parameters
     navigation.navigate('BookDetails', { book });
+  };
+
+  const handleSelectUser = (userId) => {
+    navigation.navigate('GivenUserProfile', { userId });
+  };
+
+  const searchUsers = async (searchText) => {
+    const usersRef = collection(db, "users");
+    const q = query(usersRef, where("username", ">=", searchText), where("username", "<=", searchText + '\uf8ff'));
+    const querySnapshot = await getDocs(q);
+    const users = [];
+    querySnapshot.forEach((doc) => {
+      users.push({ ...doc.data(), userId: doc.id });
+    });
+    setUsersData(users);
   };
 
   return (
@@ -29,55 +44,50 @@ export default function SearchScreen() {
         <TextInput 
           value={search} 
           onChangeText={setSearch}
-          placeholder="Search Books" 
+          placeholder={`Search ${searchMode === "books" ? "Books" : "Users"}`} 
           style={styles.input}
         />
-        <Button title='Search' onPress={() => runQuery({variables: {q: search}})}/>
+        <Button title='Search' onPress={() => searchMode === "books" ? runQuery({variables: {q: search}}) : searchUsers(search)}/>
       </View>
 
       <View style={styles.tabs}> 
         <Text 
-          style={
-            provider === "googleBooksSearch"
-              ? {fontWeight: 'bold', color: "royalblue"}
-              : {}
-          }
-          onPress={() => setProvider("googleBooksSearch")}
+          style={searchMode === "books" ? {fontWeight: 'bold', color: "royalblue"} : {}}
+          onPress={() => setSearchMode("books")}
         >
           Google Books
         </Text>
         <Text 
-          style={
-            provider === "openLibrarySearch"
-              ? {fontWeight: 'bold', color: "royalblue"}
-              : {}
-          }
-          onPress={() => setProvider("openLibrarySearch")}
+          style={searchMode === "users" ? {fontWeight: 'bold', color: "royalblue"} : {}}
+          onPress={() => setSearchMode("users")}
         >
-          Open Libary
+          Users
         </Text>
       </View>
 
       {loading && <ActivityIndicator />}
       {error && (
         <View style={styles.container}>
-          <Text style={styles.title}>Error fetching books</Text>
+          <Text style={styles.title}>Error fetching data</Text>
           <Text>{error.message}</Text>
         </View>
       )}
       <FlatList
-        data={
-          provider === "googleBooksSearch"
-            ? data?.googleBooksSearch?.items 
-            : data?.openLibrarySearch?.docs || []
-        }
+        data={searchMode === "books" ? (data?.googleBooksSearch?.items || []) : usersData}
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => handleSelectBook(parseBook(item, provider))}>
-            <BookItem book={parseBook(item, provider)}/>
-          </TouchableOpacity>
+          searchMode === "books" ? (
+            <TouchableOpacity onPress={() => handleSelectBook(parseBook(item, "googleBooksSearch"))}>
+              <BookItem book={parseBook(item, "googleBooksSearch")}/>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity onPress={() => handleSelectUser(item.userId)}>
+              <Text>{item.username}</Text>
+            </TouchableOpacity>
+          )
         )} 
       />
     </SafeAreaView>
   );
 }
+
