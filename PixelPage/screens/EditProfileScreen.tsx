@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScrollView, View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { ScrollView, View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity, SafeAreaView } from 'react-native';
 import { auth, db } from '../FirebaseConfig'; // make sure to import auth from your firebase config
 import { doc, updateDoc } from 'firebase/firestore';
 
@@ -30,34 +30,36 @@ export default function EditProfileScreen({ navigation }) {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Button title="Cancel" onPress={() => navigation.goBack()} />
-        <Text style={styles.headerTitle}>Edit Profile</Text>
-        <Button title="Done" onPress={handleSaveProfile} />
-      </View>
-      <View style={styles.profileSection}>
-        <Image
-        source={{ uri: 'https://via.placeholder.com/150' }} // Replace with user's profile image URI
-        style={styles.profileImage}
-        />
-        <Button title="Change profile photo" onPress={() => {}} />
-      </View>
-      <View style={styles.form}>
-        <TextInput
-          placeholder="Username"
-          value={username}
-          onChangeText={setUsername}
-          style={styles.input}
-        />
-        <TextInput
-          placeholder="Bio"
-          value={bio}
-          onChangeText={setBio}
-          style={styles.input}
-        />
-      </View>
-    </ScrollView>
+    <SafeAreaView style={styles.container}>
+      <ScrollView style={styles.container}>
+        <View style={styles.header}>
+          <Button title="Cancel" onPress={() => navigation.goBack()} />
+          <Text style={styles.headerTitle}>Edit Profile</Text>
+          <Button title="Done" onPress={handleSaveProfile} />
+        </View>
+        <View style={styles.profileSection}>
+          <Image
+          source={{ uri: 'https://via.placeholder.com/150' }} // Replace with user's profile image URI
+          style={styles.profileImage}
+          />
+          <Button title="Change profile photo" onPress={() => {}} />
+        </View>
+        <View style={styles.form}>
+          <TextInput
+            placeholder="Username"
+            value={username}
+            onChangeText={setUsername}
+            style={styles.input}
+          />
+          <TextInput
+            placeholder="Bio"
+            value={bio}
+            onChangeText={setBio}
+            style={styles.input}
+          />
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
