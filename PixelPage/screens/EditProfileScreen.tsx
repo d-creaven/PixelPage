@@ -1,32 +1,77 @@
-import React, { useState } from 'react';
-import { ScrollView, View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity, SafeAreaView } from 'react-native';
-import { auth, db } from '../FirebaseConfig'; // make sure to import auth from your firebase config
-import { doc, updateDoc } from 'firebase/firestore';
+import React, { useState, useEffect } from 'react';
+import { ScrollView, View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity, Alert, SafeAreaView } from 'react-native';
+import { auth, db } from '../FirebaseConfig';
+import { doc, updateDoc, getDoc } from 'firebase/firestore';
+import * as ImagePicker from 'expo-image-picker';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export default function EditProfileScreen({ navigation }) {
   const [username, setUsername] = useState('');
   const [bio, setBio] = useState('');
+  const [profileImage, setProfileImage] = useState<string | null>('');
+
+  useEffect(() => {
+    (async () => {
+      if (auth.currentUser) {
+        const docRef = doc(db, 'users', auth.currentUser.uid);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const userData = docSnap.data();
+          setUsername(userData.username);
+          setBio(userData.bio);
+          if (userData.profileImageUrl) {
+            setProfileImage(userData.profileImageUrl);
+          }
+        }
+      }
+    })();
+  }, []);
 
   const handleSaveProfile = async () => {
     if (auth.currentUser) {
       const userRef = doc(db, 'users', auth.currentUser.uid);
       try {
         await updateDoc(userRef, {
-          username: username,
-          bio: bio,
+          username,
+          bio,
+          profileImageUrl: profileImage,
         });
-        console.log('Profile saved!');
-        // Optionally navigate back or give feedback to the user
+        Alert.alert('Profile updated successfully!');
         navigation.goBack();
       } catch (error) {
         console.error("Error updating profile: ", error);
-        // Handle errors, possibly show an alert to the user
+        Alert.alert("Error updating profile");
       }
-    } else {
-      // No user is signed in.
-      console.log('No user is signed in.');
-      // Handle this situation, possibly by sending them to the login screen
     }
+  };
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+  
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const uri = result.assets[0].uri; // Access the uri from the first asset
+      uploadImage(uri);
+    }
+  };
+
+  const uploadImage = async (uri) => {
+    const storage = getStorage();
+    const imageName = `profile_${auth.currentUser.uid}`;
+    const storageRef = ref(storage, `profileImages/${imageName}`);
+
+    const response = await fetch(uri);
+    const blob = await response.blob();
+
+    await uploadBytes(storageRef, blob);
+
+    const downloadURL = await getDownloadURL(storageRef);
+    setProfileImage(downloadURL);
   };
 
   return (
@@ -35,14 +80,11 @@ export default function EditProfileScreen({ navigation }) {
         <View style={styles.header}>
           <Button title="Cancel" onPress={() => navigation.goBack()} />
           <Text style={styles.headerTitle}>Edit Profile</Text>
-          <Button title="Done" onPress={handleSaveProfile} />
+          <Button title="Save" onPress={handleSaveProfile} />
         </View>
         <View style={styles.profileSection}>
-          <Image
-          source={{ uri: 'https://via.placeholder.com/150' }} // Replace with user's profile image URI
-          style={styles.profileImage}
-          />
-          <Button title="Change profile photo" onPress={() => {}} />
+          <Image source={{ uri: profileImage || 'https://via.placeholder.com/150' }} style={styles.profileImage} />
+          <Button title="Change Profile Photo" onPress={pickImage} />
         </View>
         <View style={styles.form}>
           <TextInput

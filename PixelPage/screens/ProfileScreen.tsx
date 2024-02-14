@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
 import { auth, db } from '../FirebaseConfig';
-import { doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
 
 export default function ProfileScreen() {
   const [userData, setUserData] = useState({
@@ -10,6 +10,7 @@ export default function ProfileScreen() {
     followersCount: 0,
     followingCount: 0,
     bio: '',
+    profileImageUrl: 'https://via.placeholder.com/150', // Default image in case profile image is not set
   });
 
   useEffect(() => {
@@ -18,12 +19,12 @@ export default function ProfileScreen() {
         if (document.exists()) {
           const data = document.data();
           setUserData({
-            username: data.username || '', // Provide a default value if the field is not set
+            username: data.username || '',
             reviewsCount: data.reviewsCount || 0,
             followersCount: data.followersCount || 0,
             followingCount: data.followingCount || 0,
             bio: data.bio || '',
-            // Add other fields as needed, with default values
+            profileImageUrl: data.profileImageUrl || 'https://via.placeholder.com/150', // Use profile image URL from Firestore, with a default placeholder
           });
         } else {
           // Handle the case where the document does not exist
@@ -32,7 +33,7 @@ export default function ProfileScreen() {
         // Handle the error
         console.error("Error fetching user data: ", error);
       });
-  
+
       // Cleanup listener when the component unmounts
       return () => unsubscribe();
     }
@@ -42,7 +43,7 @@ export default function ProfileScreen() {
     <ScrollView style={styles.container}>
       <View style={styles.headerContainer}>
         <Image
-          source={{ uri: 'https://via.placeholder.com/150' }} // Replace with user's profile image
+          source={{ uri: userData.profileImageUrl }} // Use profile image URL from state
           style={styles.profileImage}
         />
         <Text style={styles.username}>{userData.username}</Text>
