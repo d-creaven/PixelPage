@@ -10,6 +10,7 @@ import styles from "./styles";
 import { useNavigation } from "@react-navigation/native";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../../FirebaseConfig";
+import UserItem from "../../components/UserItem";
 
 export default function SearchScreen() {
   const [search, setSearch] = useState("");
@@ -81,9 +82,12 @@ export default function SearchScreen() {
               <BookItem book={parseBook(item, "googleBooksSearch")}/>
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity onPress={() => handleSelectUser(item.userId)}>
-              <Text>{item.username}</Text>
-            </TouchableOpacity>
+            // Use the UserItem component for rendering user search results
+            <UserItem 
+              username={item.username} 
+              profileImageUrl={item.profileImageUrl}
+              onPress={() => handleSelectUser(item.userId)}
+            />
           )
         )} 
       />

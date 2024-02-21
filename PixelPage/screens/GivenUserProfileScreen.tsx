@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
 import { db } from '../FirebaseConfig';
 import { doc, onSnapshot } from 'firebase/firestore';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 
-const GivenUserProfileScreen = ({ route }) => {
+const GivenUserProfileScreen = ({ route, navigation }) => {
   const [userData, setUserData] = useState({
     username: 'Loading...',
     reviewsCount: 0,
@@ -27,32 +29,47 @@ const GivenUserProfileScreen = ({ route }) => {
           bio: data.bio || '',
           profileImageUrl: data.profileImageUrl || 'https://via.placeholder.com/150',
         });
+
+        // Update the navigation header with the user's username
+        navigation.setOptions({ headerTitle: data.username || 'Profile' });
       } else {
         // Handle the case where the document does not exist
       }
     }, (error) => {
-      // Handle the error
       console.error("Error fetching user data: ", error);
     });
 
-    // Cleanup listener when the component unmounts
     return () => unsubscribe();
-  }, [userId]);
+  }, [userId, navigation]);
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 10 }}>
+          <Ionicons name="arrow-back" size={24} color="black" />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.headerContainer}>
-        <Image source={{ uri: userData.profileImageUrl }} style={styles.profileImage} />
-        <Text style={styles.username}>{userData.username}</Text>
-        <View style={styles.statsContainer}>
-          <Text style={styles.stat}>{userData.reviewsCount} Reviews</Text>
-          <Text style={styles.stat}>{userData.followersCount} Followers</Text>
-          <Text style={styles.stat}>{userData.followingCount} Following</Text>
+    <SafeAreaView edges={["top"]} style={styles.container}>
+      <ScrollView style={styles.container}>
+        {/* <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={24} color="black" />
+        </TouchableOpacity> */}
+        <View style={styles.headerContainer}>
+          <Image source={{ uri: userData.profileImageUrl }} style={styles.profileImage} />
+          <View style={styles.statsContainer}>
+            <Text style={styles.stat}>{userData.reviewsCount} Reviews</Text>
+            <Text style={styles.stat}>{userData.followersCount} Followers</Text>
+            <Text style={styles.stat}>{userData.followingCount} Following</Text>
+          </View>
         </View>
-      </View>
-      <Text style={styles.bio}>{userData.bio}</Text>
-      {/* Add additional user profile components here */}
-    </ScrollView>
+        <Text style={styles.bio}>{userData.bio}</Text>
+        {/* Add additional user profile components here */}
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
