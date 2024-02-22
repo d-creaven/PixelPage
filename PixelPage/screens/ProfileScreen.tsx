@@ -10,6 +10,8 @@ export default function ProfileScreen() {
   const [userData, setUserData] = useState({
     username: 'Loading...',
     reviewsCount: 0,
+    followers: [],
+    following: [],
     followersCount: 0,
     followingCount: 0,
     bio: '',
@@ -26,6 +28,8 @@ export default function ProfileScreen() {
           setUserData({
             username: data.username || '',
             reviewsCount: data.reviewsCount || 0,
+            followers: data.followers || [],
+            following: data.following || [],
             followersCount: data.followersCount || 0,
             followingCount: data.followingCount || 0,
             bio: data.bio || '',

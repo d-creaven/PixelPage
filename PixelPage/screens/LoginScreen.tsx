@@ -23,6 +23,8 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'
         email: user.email,
         username: 'New User', // Default username
         reviewsCount: 0, // Default reviews count
+        followers: [], 
+        following: [],
         followersCount: 0, // Default followers count
         followingCount: 0, // Default following count
         bio: 'No bio provided.', // Default bio
