@@ -26,6 +26,7 @@ import ProfileScreen from '../screens/ProfileScreen';
 import BookDetailsScreen from '../screens/BookDetails';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import GivenUserProfileScreen from '../screens/GivenUserProfileScreen';
+import CreateReviewScreen from '../screens/CreateReviewScreen';
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
   return (
@@ -67,6 +68,7 @@ function RootNavigator() {
       <Stack.Screen name="BookDetails" component={BookDetailsScreen} options={{ headerShown: true }} />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ headerShown: false }} />
       <Stack.Screen name="GivenUserProfile" component={GivenUserProfileScreen} options={{ headerShown: true }} />
+      <Stack.Screen name="Create Review" component={CreateReviewScreen} options={{ headerShown: true }} />
     </Stack.Navigator>
   );
 }

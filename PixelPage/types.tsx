@@ -23,6 +23,7 @@ export type RootStackParamList = {
   };
   EditProfile: undefined;
   GivenUserProfile: undefined;
+  "Create Review": undefined;
 };
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> = NativeStackScreenProps<

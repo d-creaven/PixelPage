@@ -9,16 +9,6 @@ const BookDetailsScreen = ({ route }) => {
   // Assuming you're passing a `book` object in your navigation route params
   const { book } = route.params;
 
-  // Placeholder function for choosing reading status
-  const onReadingStatusChange = (status) => {
-    console.log('Reading status changed:', status);
-  };
-
-  // Placeholder function for choosing purchase format
-  const onPurchaseFormatChange = (format) => {
-    console.log('Purchase format changed:', format);
-  };
-
   const {isBookSaved, onToggleSaved} = useMyBooks();
 
   const saved = isBookSaved(book);
@@ -27,6 +17,11 @@ const BookDetailsScreen = ({ route }) => {
 
   const [descriptionExpanded, setDescriptionExpanded] = React.useState(false);
 
+  const handleReviewPress = () => {
+    // Navigation to the CreateReview screen
+    // Assuming 'CreateReview' is the name of your screen where users write reviews
+    navigation.navigate('Create Review', { book });
+  };
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -84,6 +79,14 @@ const BookDetailsScreen = ({ route }) => {
             {saved ? 'Remove' : 'Want to Read'}
           </Text>
         </Pressable>
+        <Pressable
+        style={[styles.button, { backgroundColor: '#FFA500', marginTop: 10 }]} // Example style, change as needed
+        onPress={handleReviewPress}
+      >
+        <Text style={styles.buttonText}>
+          Review
+        </Text>
+      </Pressable>
       </View>
     </ScrollView>
   );
