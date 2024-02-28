@@ -27,6 +27,7 @@ import BookDetailsScreen from '../screens/BookDetails';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import GivenUserProfileScreen from '../screens/GivenUserProfileScreen';
 import CreateReviewScreen from '../screens/CreateReviewScreen';
+import FeedScreen from '../screens/FeedScreen';
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
   return (
@@ -88,6 +89,14 @@ function BottomTabNavigator() {
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme].tint,
       }}>
+      <BottomTab.Screen
+        name="Feed"
+        component={FeedScreen}
+        options={({ navigation }: RootTabScreenProps<'Feed'>) => ({
+          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
+          headerShown: true,
+        })}
+      />
       <BottomTab.Screen
         name="Search"
         component={SearchScreen}

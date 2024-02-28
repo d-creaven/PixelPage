@@ -35,6 +35,7 @@ export type RootTabParamList = {
   Search: undefined;
   "My Books": undefined;
   Profile: undefined;
+  Feed: undefined;
 };
 
 export type RootTabScreenProps<Screen extends keyof RootTabParamList> = CompositeScreenProps<
