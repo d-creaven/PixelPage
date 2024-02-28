@@ -49,15 +49,15 @@ export default function ProfileScreen() {
     }
   }, [auth.currentUser, navigation]); // Include navigation here
   
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerLeft: () => (
-        <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 10 }}>
-          <Ionicons name="arrow-back" size={24} color="black" />
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation]);
+  // React.useLayoutEffect(() => {
+  //   navigation.setOptions({
+  //     headerLeft: () => (
+  //       <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 10 }}>
+  //         <Ionicons name="arrow-back" size={24} color="black" />
+  //       </TouchableOpacity>
+  //     ),
+  //   });
+  // }, [navigation]);
 
   return (
     <ScrollView style={styles.container}>
