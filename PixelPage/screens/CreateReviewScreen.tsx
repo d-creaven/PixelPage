@@ -1,19 +1,39 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { addDoc, collection } from 'firebase/firestore';
+import { auth, db } from '../FirebaseConfig';
 
 const CreateReviewScreen = ({ route, navigation }) => {
   const [reviewText, setReviewText] = useState('');
   const [rating, setRating] = useState(0);
   const { book } = route.params;
 
-  const handleReviewSubmit = () => {
-    // Logic to submit the review to your database
-    console.log('Review Text:', reviewText);
-    console.log('Rating:', rating);
-    // Navigate back to the book details or elsewhere as needed
-    navigation.goBack();
+  const handleReviewSubmit = async (bookId, reviewText, rating) => {
+    // Assuming 'bookId' is the ID of the book being reviewed,
+    // 'reviewText' is the text of the review,
+    // and 'rating' is the rating given by the user.
+    const reviewData = {
+      bookId,
+      reviewText,
+      rating,
+      userId: auth.currentUser.uid, // Assuming you have access to the auth object
+      timestamp: new Date(), // Adds a timestamp to the review
+      likes: 0, // Initializes likes count for the review
+      comments: [], // Initializes an array to hold comments on the review
+    };
+  
+    try {
+      // Reference to the reviews collection in Firestore
+      const reviewsRef = collection(db, 'reviews');
+      // Adding the new review to the Firestore collection
+      await addDoc(reviewsRef, reviewData);
+      console.log('Review submitted successfully!');
+    } catch (error) {
+      console.error('Error submitting review: ', error);
+    }
   };
+  
 
   const renderStars = () => {
     let stars = [];
@@ -42,7 +62,7 @@ const CreateReviewScreen = ({ route, navigation }) => {
         multiline
       />
       <View style={styles.starsContainer}>{renderStars()}</View>
-      <TouchableOpacity style={styles.submitButton} onPress={handleReviewSubmit}>
+      <TouchableOpacity style={styles.submitButton} onPress={() => handleReviewSubmit(book.isbn, reviewText, rating)}>
         <Text style={styles.submitButtonText}>Submit Review</Text>
       </TouchableOpacity>
     </View>
