@@ -1,90 +1,113 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { addDoc, collection, doc, getDoc } from 'firebase/firestore';
+import { auth, db } from '../FirebaseConfig';
 
-const ReviewItem = ({ reviewData, onLikePress, onCommentPress }) => {
-  const { username, reviewCount, followerCount, rating, reviewText, likeCount, commentCount, profileImageUrl } = reviewData;
+const ReviewItem = ({ review }) => {
+  // Placeholder functions for like and comment button presses
+  const handleLikePress = () => console.log('Like pressed for review:', review.id);
+  const handleCommentPress = () => console.log('Comment pressed for review:', review.id);
 
-  // Generate stars for the rating
-  const stars = [];
-  for (let i = 1; i <= 5; i++) {
-    stars.push(
-      <Ionicons
-        key={i}
-        name={i <= rating ? "star" : "star-outline"}
-        size={24}
-        color={i <= rating ? "orange" : "grey"}
-      />
-    );
-  }
+  // Renders rating stars
+  const renderStars = () => {
+    let stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <Ionicons
+          key={i}
+          name={i <= review.rating ? "star" : "star-outline"}
+          size={20}
+          color={i <= review.rating ? "#ffd700" : "#e3e3e3"}
+        />
+      );
+    }
+    return <View style={styles.starsContainer}>{stars}</View>;
+  };
 
   return (
-    <View style={styles.container}>
-      <Image source={{ uri: profileImageUrl }} style={styles.profileImage} />
-      <View style={styles.content}>
-        <Text style={styles.username}>{username}</Text>
-        <Text style={styles.reviewStats}>{`${reviewCount} reviews · ${followerCount} followers`}</Text>
-        <View style={styles.stars}>{stars}</View>
-        <Text style={styles.reviewText}>{reviewText}</Text>
-        <View style={styles.socialRow}>
-          <TouchableOpacity onPress={onLikePress} style={styles.socialButton}>
-            <Ionicons name="heart-outline" size={24} color="black" />
-            <Text style={styles.socialCount}>{likeCount}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={onCommentPress} style={styles.socialButton}>
-            <Ionicons name="chatbubble-outline" size={24} color="black" />
-            <Text style={styles.socialCount}>{commentCount}</Text>
-          </TouchableOpacity>
+    <View style={styles.reviewCard}>
+      <View style={styles.topBar}>
+        <Image source={{ uri: review.profileImage }} style={styles.profileImage} />
+        <Text style={styles.username}>{review.username}</Text>
+      </View>
+      <View style={styles.bookInfoContainer}>
+        <Image source={{ uri: review.cover }} style={styles.bookCover} />
+        <View style={styles.titleContainer}>
+          <Text style={styles.bookTitle}>{review.title}</Text>
+          <Text style={styles.bookAuthor}>{review.author}</Text>
         </View>
+      </View>
+      {renderStars()}
+      <Text style={styles.reviewText}>{review.reviewText}</Text>
+      <View style={styles.interactionContainer}>
+        <TouchableOpacity onPress={handleLikePress}>
+          <Ionicons name="heart-outline" size={24} color="black" />
+        </TouchableOpacity>
+        <Text>{review.likes}</Text>
+        <TouchableOpacity onPress={handleCommentPress}>
+          <Ionicons name="chatbubble-outline" size={24} color="black" />
+        </TouchableOpacity>
+        <Text>{review.comments.length}</Text>
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  reviewCard: {
+    backgroundColor: '#f9f9f9',
+    padding: 20,
+    marginVertical: 8,
+    borderRadius: 5,
+  },
+  topBar: {
     flexDirection: 'row',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    backgroundColor: 'white',
+    alignItems: 'center',
+    marginBottom: 10,
   },
   profileImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-  },
-  content: {
-    flex: 1,
-    marginLeft: 10,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    marginRight: 10,
   },
   username: {
     fontWeight: 'bold',
   },
-  reviewStats: {
+  bookInfoContainer: {
+    flexDirection: 'row',
+  },
+  bookCover: {
+    width: 100,
+    height: 150,
+    resizeMode: 'contain',
+  },
+  titleContainer: {
+    marginLeft: 10,
+    justifyContent: 'space-evenly',
+  },
+  bookTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  bookAuthor: {
+    fontSize: 14,
     color: 'grey',
   },
-  stars: {
+  starsContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 4,
+    marginTop: 10,
   },
   reviewText: {
     fontSize: 14,
-    color: 'black',
+    marginTop: 5,
   },
-  socialRow: {
+  interactionContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  socialButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  socialCount: {
-    marginLeft: 4,
+    justifyContent: 'space-between',
+    width: '100%',
+    marginTop: 10,
   },
 });
 

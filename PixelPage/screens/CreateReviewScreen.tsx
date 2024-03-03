@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../FirebaseConfig';
 
 const CreateReviewScreen = ({ route, navigation }) => {
@@ -9,10 +9,31 @@ const CreateReviewScreen = ({ route, navigation }) => {
   const [rating, setRating] = useState(0);
   const { book } = route.params;
 
+  const fetchUserData = async () => {
+    const userRef = doc(db, 'users', auth.currentUser.uid);
+    const userSnap = await getDoc(userRef);
+  
+    if (userSnap.exists()) {
+      const userData = userSnap.data();
+      return {
+        username: userData.username,
+        userProfileImage: userData.profileImageUrl,
+      };
+    } else {
+      console.log('No such user!');
+      return {
+        username: '',
+        userProfileImage: '',
+      };
+    }
+  };
+
   const handleReviewSubmit = async (bookId, reviewText, rating) => {
     // Assuming 'bookId' is the ID of the book being reviewed,
     // 'reviewText' is the text of the review,
     // and 'rating' is the rating given by the user.
+    const user = await fetchUserData();
+
     const reviewData = {
       bookId,
       reviewText,
@@ -21,6 +42,11 @@ const CreateReviewScreen = ({ route, navigation }) => {
       timestamp: new Date(), // Adds a timestamp to the review
       likes: 0, // Initializes likes count for the review
       comments: [], // Initializes an array to hold comments on the review
+      title: book.title,
+      author: book.authors,
+      cover: book.image,
+      username: user.username,
+      profileImage: user.userProfileImage,
     };
   
     try {

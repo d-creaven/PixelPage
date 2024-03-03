@@ -1,33 +1,52 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import { db } from '../FirebaseConfig'; // Adjust the import path as needed
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, FlatList, StyleSheet, RefreshControl } from 'react-native';
+import { auth, db } from '../FirebaseConfig';
+import { collection, query, where, onSnapshot, orderBy, doc, getDoc } from 'firebase/firestore';
+import ReviewItem from '../components/ReviewItem';
 
 const FeedScreen = () => {
   const [reviews, setReviews] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    const fetchReviews = async () => {
-      const reviewsRef = collection(db, 'reviews'); // Adjust 'reviews' to your actual collection name
-      const q = query(reviewsRef); // Add your query conditions if needed
-      const querySnapshot = await getDocs(q);
+  // Define fetchReviews function outside of useEffect
+  const fetchReviews = async () => {
+    const userRef = collection(db, 'users');
+    const userDoc = await doc(userRef, auth.currentUser.uid);
+    const userSnap = await getDoc(userDoc);
+    const userData = userSnap.data();
+
+    const following = userData?.following || [];
+    following.push(auth.currentUser.uid);
+
+    const reviewsRef = collection(db, 'reviews');
+    const q = query(reviewsRef,
+      where('userId', 'in', following),
+      orderBy('timestamp', 'desc')
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
       const fetchedReviews = [];
-      querySnapshot.forEach((doc) => {
+      snapshot.forEach((doc) => {
         fetchedReviews.push({ id: doc.id, ...doc.data() });
       });
       setReviews(fetchedReviews);
-    };
+      setRefreshing(false); // Stop refreshing after data is fetched
+    });
 
+    return () => unsubscribe();
+  };
+
+  useEffect(() => {
     fetchReviews();
+  }, []); // Call fetchReviews when the component mounts
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchReviews(); // Call fetchReviews when refreshing
   }, []);
 
   const renderItem = ({ item }) => (
-    <View style={styles.reviewCard}>
-      <Text style={styles.bookTitle}>{item.bookTitle}</Text>
-      <Text style={styles.reviewText}>{item.reviewText}</Text>
-      <Text style={styles.rating}>Rating: {item.rating}</Text>
-      {/* Add more details like likes, comments, etc. */}
-    </View>
+    <ReviewItem review={item} />
   );
 
   return (
@@ -36,6 +55,12 @@ const FeedScreen = () => {
         data={reviews}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+          />
+        }
       />
     </View>
   );
@@ -46,26 +71,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 20,
   },
-  reviewCard: {
-    backgroundColor: '#f9f9f9',
-    padding: 20,
-    marginVertical: 8,
-    marginHorizontal: 16,
-    borderRadius: 5,
-  },
-  bookTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  reviewText: {
-    fontSize: 14,
-    marginTop: 5,
-  },
-  rating: {
-    fontSize: 14,
-    marginTop: 5,
-  },
-  // Add styles for other elements as needed
 });
 
 export default FeedScreen;
