@@ -1,12 +1,29 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, FlatList, StyleSheet, RefreshControl } from 'react-native';
 import { auth, db } from '../FirebaseConfig';
 import { collection, query, where, onSnapshot, orderBy, doc, getDoc } from 'firebase/firestore';
 import ReviewItem from '../components/ReviewItem';
+import { useFocusEffect } from '@react-navigation/native';
 
-const FeedScreen = () => {
+const FeedScreen = ({ navigation }) => {
   const [reviews, setReviews] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const flatListRef = useRef<FlatList | null>(null);
+
+  const scrollToTop = () => {
+    if (flatListRef.current) {
+      flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
+    }
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (route.params?.refresh) {
+        scrollToTop(); // Call scrollToTop only if the refresh parameter is set
+      }
+      return () => {};
+    }, [route.params?.refresh])
+  );
 
   // Define fetchReviews function outside of useEffect
   const fetchReviews = async () => {

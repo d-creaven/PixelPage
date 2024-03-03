@@ -55,6 +55,7 @@ const CreateReviewScreen = ({ route, navigation }) => {
       // Adding the new review to the Firestore collection
       await addDoc(reviewsRef, reviewData);
       console.log('Review submitted successfully!');
+      navigation.navigate('Feed', { refresh: true });
     } catch (error) {
       console.error('Error submitting review: ', error);
     }
