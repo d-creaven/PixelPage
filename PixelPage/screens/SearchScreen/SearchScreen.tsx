@@ -56,7 +56,7 @@ export default function SearchScreen() {
           style={searchMode === "books" ? {fontWeight: 'bold', color: "royalblue"} : {}}
           onPress={() => setSearchMode("books")}
         >
-          Google Books
+          Books
         </Text>
         <Text 
           style={searchMode === "users" ? {fontWeight: 'bold', color: "royalblue"} : {}}

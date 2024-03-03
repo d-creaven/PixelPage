@@ -5,7 +5,7 @@ import { collection, query, where, onSnapshot, orderBy, doc, getDoc } from 'fire
 import ReviewItem from '../components/ReviewItem';
 import { useFocusEffect } from '@react-navigation/native';
 
-const FeedScreen = ({ navigation }) => {
+const FeedScreen = ({ navigation, route }) => {
   const [reviews, setReviews] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const flatListRef = useRef<FlatList | null>(null);
