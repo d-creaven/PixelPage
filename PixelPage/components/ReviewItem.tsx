@@ -5,7 +5,7 @@ import { addDoc, collection, doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../FirebaseConfig';
 
 const ReviewItem = ({ review }) => {
-  // Placeholder functions for like and comment button presses
+
   const handleLikePress = () => console.log('Like pressed for review:', review.id);
   const handleCommentPress = () => console.log('Comment pressed for review:', review.id);
 
