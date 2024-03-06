@@ -3,9 +3,12 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image } from 'reac
 import { Ionicons } from '@expo/vector-icons';
 import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, increment, query, updateDoc, where } from 'firebase/firestore';
 import { auth, db } from '../FirebaseConfig';
+import CommentSection from './CommentSection';
+
 
 const ReviewItem = ({ review }) => {
   const [isLiked, setIsLiked] = useState(false);
+  const [showComments, setShowComments] = useState(false);
 
   useEffect(() => {
     const checkIfLiked = async () => {
@@ -45,7 +48,9 @@ const ReviewItem = ({ review }) => {
     }
   };
   
-  const handleCommentPress = () => console.log('Comment pressed for review:', review.id);
+  const handleCommentPress = () => {
+    setShowComments(!showComments);
+  };
 
   // Renders rating stars
   const renderStars = () => {
@@ -92,6 +97,7 @@ const ReviewItem = ({ review }) => {
         </TouchableOpacity>
         <Text>{review.comments.length}</Text>
       </View>
+      {showComments && <CommentSection reviewId={review.id} />}
     </View>
   );
 };
