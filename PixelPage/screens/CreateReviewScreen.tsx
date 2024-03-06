@@ -41,6 +41,7 @@ const CreateReviewScreen = ({ route, navigation }) => {
       userId: auth.currentUser.uid, // Assuming you have access to the auth object
       timestamp: new Date(), // Adds a timestamp to the review
       likes: 0, // Initializes likes count for the review
+      likedByUser: [],
       comments: [], // Initializes an array to hold comments on the review
       title: book.title,
       author: book.authors,

@@ -7,6 +7,7 @@ type Review = {
     userId: string,
     timestamp: Timestamp,
     likes: number,
+    likedByUsers: string,
     comments: [],
     title: string,
     authors: [],
