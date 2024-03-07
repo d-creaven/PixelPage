@@ -84,18 +84,19 @@ const ReviewItem = ({ review }) => {
       {renderStars()}
       <Text style={styles.reviewText}>{review.reviewText}</Text>
       <View style={styles.interactionContainer}>
-      <TouchableOpacity onPress={handleLikePress}>
-        <Ionicons
-          name={isLiked ? "heart" : "heart-outline"}
-          size={24}
-          color={isLiked ? "red" : "black"}
-        />
-      </TouchableOpacity>
-        <Text>{review.likes}</Text>
+        <View style={styles.likeContainer}>
+          <TouchableOpacity onPress={handleLikePress}>
+            <Ionicons
+              name={isLiked ? "heart" : "heart-outline"}
+              size={24}
+              color={isLiked ? "red" : "black"}
+            />
+          </TouchableOpacity>
+          <Text style={styles.likeCount}>{review.likes}</Text>
+        </View>
         <TouchableOpacity onPress={handleCommentPress}>
           <Ionicons name="chatbubble-outline" size={24} color="black" />
         </TouchableOpacity>
-        <Text>{review.comments.length}</Text>
       </View>
       {showComments && <CommentSection reviewId={review.id} />}
     </View>
@@ -153,9 +154,16 @@ const styles = StyleSheet.create({
   },
   interactionContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
+    alignItems: 'center',
     marginTop: 10,
+  },
+  likeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 10, // Adjust spacing between the like container and the next element if needed
+  },
+  likeCount: {
+    marginLeft: 5, // Adjust the space between the heart icon and the like count text
   },
 });
 
