@@ -1,5 +1,6 @@
 import { ReactNode, createContext, useContext, useState, useEffect } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { auth, db } from "../FirebaseConfig";
+import { collection, deleteDoc, doc, getDocs, setDoc } from "firebase/firestore";
 
 type MyBooksContextType = {
   onToggleSaved: (book: Book) => void,
@@ -20,9 +21,20 @@ type Props = {
 const MyBooksProvider = ({ children }: Props) => {
   const [savedBooks, setSavedBooks] = useState<Book[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+
 
   useEffect(() => {
-    loadData();
+    const unsubscribe = auth.onAuthStateChanged(user => {
+      setCurrentUser(user);
+      if (user) {
+        loadData(user.uid);
+      } else {
+        setSavedBooks([]);
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -42,31 +54,51 @@ const MyBooksProvider = ({ children }: Props) => {
   }
 
   const onToggleSaved = (book: Book) => {
+    const userId = auth.currentUser.uid; // Replace with dynamic user ID retrieval logic
+  
     if (isBookSaved(book)) {
-      //remove
-      setSavedBooks(books => 
-        books.filter(
-          (savedBook) => !areBooksTheSame(savedBook, book))
-      );
+      // If the book is already saved, remove it
+      saveBook(userId, book.isbn, null, false);
     } else {
-      //add
-      setSavedBooks((books) => [book, ...books]);
+      // If the book is not saved, save it
+      saveBook(userId, book.isbn, book, true);
+    }
+  
+    // Update the local state to reflect the change
+    setSavedBooks((currentBooks) => {
+      if (isBookSaved(book)) {
+        return currentBooks.filter((savedBook) => savedBook.id !== book.id);
+      } else {
+        return [book, ...currentBooks];
+      }
+    });
+  };
+  
+  const saveBook = async (userId, bookId, bookDetails, isSaving) => {
+    const bookRef = doc(db, `users/${userId}/books`, bookId);
+    if (isSaving) {
+      await setDoc(bookRef, bookDetails);
+    } else {
+      await deleteDoc(bookRef);
     }
   };
 
   const persistData = async () => {
-    await AsyncStorage.setItem("booksData", JSON.stringify(savedBooks));
-  }
+    const userId = auth.currentUser.uid;
+    savedBooks.forEach(async (book) => {
+      const bookRef = doc(db, `users/${userId}/books`, book.isbn);
+      await setDoc(bookRef, book);
+    });
+  };
 
   const loadData = async () => {
-    //read data to local
-    const dataString = await AsyncStorage.getItem("booksData");
-    if (dataString) {
-      const items = JSON.parse(dataString);
-      setSavedBooks(items);
-    }
+    const userId = auth.currentUser.uid; 
+    const userBooksRef = collection(db, `users/${userId}/books`);
+    const querySnapshot = await getDocs(userBooksRef);
+    const books = querySnapshot.docs.map(doc => doc.data() as Book); // Ensure proper typing
+    setSavedBooks(books);
     setLoaded(true);
-  }
+  };
 
   return (
     <MyBooksContext.Provider value={{ onToggleSaved, isBookSaved, savedBooks }}>
