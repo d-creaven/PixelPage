@@ -53,25 +53,24 @@ const MyBooksProvider = ({ children }: Props) => {
     );
   }
 
-  const onToggleSaved = (book: Book) => {
-    const userId = auth.currentUser.uid; // Replace with dynamic user ID retrieval logic
+  const onToggleSaved = async (book: Book) => {
+    const userId = auth.currentUser.uid; // Assuming you have a way to get the current user's ID
   
     if (isBookSaved(book)) {
-      // If the book is already saved, remove it
-      saveBook(userId, book.isbn, null, false);
-    } else {
-      // If the book is not saved, save it
-      saveBook(userId, book.isbn, book, true);
-    }
+      // If the book is already saved, remove it from Firestore and local state
+      const bookRef = doc(db, `users/${userId}/books`, book.id);
+      await deleteDoc(bookRef); // Remove from Firestore
   
-    // Update the local state to reflect the change
-    setSavedBooks((currentBooks) => {
-      if (isBookSaved(book)) {
-        return currentBooks.filter((savedBook) => savedBook.id !== book.id);
-      } else {
-        return [book, ...currentBooks];
-      }
-    });
+      setSavedBooks(currentBooks =>
+        currentBooks.filter(savedBook => savedBook.id !== book.id) // Remove from local state
+      );
+    } else {
+      // If the book is not saved, add it to Firestore and local state
+      const bookRef = doc(db, `users/${userId}/books`, book.id);
+      await setDoc(bookRef, book); // Add to Firestore
+  
+      setSavedBooks(currentBooks => [book, ...currentBooks]); // Add to local state
+    }
   };
   
   const saveBook = async (userId, bookId, bookDetails, isSaving) => {
