@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Pressable } from 'react-native';
 import { auth, db } from '../FirebaseConfig';
-import { arrayRemove, arrayUnion, doc, increment, onSnapshot, writeBatch } from 'firebase/firestore';
+import { arrayRemove, arrayUnion, collection, doc, increment, onSnapshot, query, where, writeBatch } from 'firebase/firestore';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -17,27 +17,43 @@ const GivenUserProfileScreen = ({ route, navigation }) => {
     profileImageUrl: 'https://via.placeholder.com/150',
   });
 
-  const { userId } = route.params; // Assume we pass the user ID as a route parameter
+  const { userId } = route.params;
+
+  useEffect(() => {
+    // Setup the reviews count listener
+    if (userId) {
+      const reviewsRef = collection(db, 'reviews');
+      const reviewsQuery = query(reviewsRef, where('userId', '==', userId));
+
+      const unsubscribeReviews = onSnapshot(reviewsQuery, (querySnapshot) => {
+        const userReviewsCount = querySnapshot.size;
+        setUserData((prevUserData) => ({
+          ...prevUserData,
+          reviewsCount: userReviewsCount, // Update the reviews count
+        }));
+      });
+
+      return () => unsubscribeReviews();
+    }
+  }, [userId]);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(doc(db, 'users', userId), (document) => {
       if (document.exists()) {
         const data = document.data();
-        setUserData({
-          username: data.username || '',
-          reviewsCount: data.reviewsCount || 0,
+        setUserData((prevUserData) => ({
+          ...prevUserData,
+          username: data.username || 'Loading...',
+          // Don't overwrite reviewsCount here since it's managed by a separate useEffect
           followers: data.followers || [],
           following: data.following || [],
           followersCount: data.followersCount || 0,
           followingCount: data.followingCount || 0,
           bio: data.bio || '',
           profileImageUrl: data.profileImageUrl || 'https://via.placeholder.com/150',
-        });
+        }));
   
-        // Update the navigation header with the user's username
         navigation.setOptions({ headerTitle: data.username || 'Profile' });
-  
-        // Check if the current user is following the profile being viewed
         const isFollowing = data.followers?.includes(auth.currentUser?.uid);
         setFollowing(isFollowing);
       } else {

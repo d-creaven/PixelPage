@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
 import { auth, db } from '../FirebaseConfig';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { collection, doc, onSnapshot, query, where } from 'firebase/firestore';
 import navigation from '../navigation';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -21,33 +21,45 @@ export default function ProfileScreen() {
   const navigation = useNavigation();
 
   useEffect(() => {
-    if (auth.currentUser) {
-      const unsubscribe = onSnapshot(doc(db, 'users', auth.currentUser.uid), (document) => {
+    const currentUserUid = auth.currentUser?.uid;
+
+    if (currentUserUid) {
+      // Setup the user data listener
+      const userRef = doc(db, 'users', currentUserUid);
+      const unsubscribeUser = onSnapshot(userRef, (document) => {
         if (document.exists()) {
           const data = document.data();
-          setUserData({
-            username: data.username || '',
-            reviewsCount: data.reviewsCount || 0,
+          setUserData((prevUserData) => ({
+            ...prevUserData,
+            username: data.username || 'Loading...',
+            // Don't overwrite reviewsCount here
             followers: data.followers || [],
             following: data.following || [],
             followersCount: data.followersCount || 0,
             followingCount: data.followingCount || 0,
             bio: data.bio || '',
             profileImageUrl: data.profileImageUrl || 'https://via.placeholder.com/150',
-          });
-          navigation.setOptions({ headerTitle: data.username || 'Profile' });
-        } else {
-          // Handle the case where the document does not exist
+          }));
         }
-      }, (error) => {
-        // Handle the error
-        console.error("Error fetching user data: ", error);
       });
-  
-      // Cleanup listener when the component unmounts
-      return () => unsubscribe();
+
+      // Setup the reviews count listener
+      const reviewsRef = collection(db, 'reviews');
+      const reviewsQuery = query(reviewsRef, where('userId', '==', currentUserUid));
+      const unsubscribeReviews = onSnapshot(reviewsQuery, (querySnapshot) => {
+        const reviewsCount = querySnapshot.size;
+        setUserData((prevUserData) => ({
+          ...prevUserData,
+          reviewsCount, // Update just the reviews count
+        }));
+      });
+
+      return () => {
+        unsubscribeUser();
+        unsubscribeReviews();
+      };
     }
-  }, [auth.currentUser, navigation]); // Include navigation here
+  }, [auth.currentUser]);
   
   // React.useLayoutEffect(() => {
   //   navigation.setOptions({
