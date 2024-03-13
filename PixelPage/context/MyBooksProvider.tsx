@@ -58,15 +58,15 @@ const MyBooksProvider = ({ children }: Props) => {
   
     if (isBookSaved(book)) {
       // If the book is already saved, remove it from Firestore and local state
-      const bookRef = doc(db, `users/${userId}/books`, book.id);
+      const bookRef = doc(db, `users/${userId}/books`, book.isbn);
       await deleteDoc(bookRef); // Remove from Firestore
   
       setSavedBooks(currentBooks =>
-        currentBooks.filter(savedBook => savedBook.id !== book.id) // Remove from local state
+        currentBooks.filter(savedBook => savedBook.isbn !== book.isbn) // Remove from local state
       );
     } else {
       // If the book is not saved, add it to Firestore and local state
-      const bookRef = doc(db, `users/${userId}/books`, book.id);
+      const bookRef = doc(db, `users/${userId}/books`, book.isbn);
       await setDoc(bookRef, book); // Add to Firestore
   
       setSavedBooks(currentBooks => [book, ...currentBooks]); // Add to local state
