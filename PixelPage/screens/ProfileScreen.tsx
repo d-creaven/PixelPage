@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, FlatList, RefreshControl } from 'react-native';
 import { auth, db } from '../FirebaseConfig';
-import { collection, doc, onSnapshot, query, where } from 'firebase/firestore';
+import { collection, doc, onSnapshot, orderBy, query, where } from 'firebase/firestore';
 import navigation from '../navigation';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import ReviewItem from '../components/ReviewItem';
 
 export default function ProfileScreen() {
   const [userData, setUserData] = useState({
@@ -15,8 +16,10 @@ export default function ProfileScreen() {
     followersCount: 0,
     followingCount: 0,
     bio: '',
-    profileImageUrl: 'https://via.placeholder.com/150', // Default image in case profile image is not set
+    profileImageUrl: 'https://via.placeholder.com/150',
   });
+  const [reviews, setReviews] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   const navigation = useNavigation();
 
@@ -32,7 +35,6 @@ export default function ProfileScreen() {
           setUserData((prevUserData) => ({
             ...prevUserData,
             username: data.username || 'Loading...',
-            // Don't overwrite reviewsCount here
             followers: data.followers || [],
             following: data.following || [],
             followersCount: data.followersCount || 0,
@@ -43,50 +45,75 @@ export default function ProfileScreen() {
         }
       });
 
-      // Setup the reviews count listener
-      const reviewsRef = collection(db, 'reviews');
-      const reviewsQuery = query(reviewsRef, where('userId', '==', currentUserUid));
-      const unsubscribeReviews = onSnapshot(reviewsQuery, (querySnapshot) => {
-        const reviewsCount = querySnapshot.size;
-        setUserData((prevUserData) => ({
-          ...prevUserData,
-          reviewsCount, // Update just the reviews count
-        }));
-      });
+      // Setup the reviews feed
+      fetchReviews(currentUserUid);
 
       return () => {
         unsubscribeUser();
-        unsubscribeReviews();
       };
     }
   }, [auth.currentUser]);
-  
-  // React.useLayoutEffect(() => {
-  //   navigation.setOptions({
-  //     headerLeft: () => (
-  //       <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 10 }}>
-  //         <Ionicons name="arrow-back" size={24} color="black" />
-  //       </TouchableOpacity>
-  //     ),
-  //   });
-  // }, [navigation]);
 
-  return (
-    <ScrollView style={styles.container}>
-      <View style={styles.headerContainer}>
-        <Image
-          source={{ uri: userData.profileImageUrl }} // Use profile image URL from state
-          style={styles.profileImage}
-        />
-        <View style={styles.statsContainer}>
-          <Text style={styles.stat}>{userData.reviewsCount} Reviews</Text>
-          <Text style={styles.stat}>{userData.followersCount} Followers</Text>
-          <Text style={styles.stat}>{userData.followingCount} Following</Text>
-        </View>
+  const fetchReviews = async (userId) => {
+    const reviewsRef = collection(db, 'reviews');
+    const q = query(reviewsRef, where('userId', '==', userId), orderBy('timestamp', 'desc'));
+  
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const fetchedReviews = [];
+      snapshot.forEach((doc) => {
+        fetchedReviews.push({ id: doc.id, ...doc.data() });
+      });
+      setReviews(fetchedReviews);
+      setRefreshing(false);
+  
+      // Update the reviewsCount in the userData state
+      setUserData((prevUserData) => ({
+        ...prevUserData,
+        reviewsCount: fetchedReviews.length, // Update the reviews count
+      }));
+    });
+  
+    return () => unsubscribe();
+  };
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    const currentUserUid = auth.currentUser?.uid;
+    if (currentUserUid) {
+      fetchReviews(currentUserUid);
+    }
+  }, []);
+
+// Profile Header component
+
+return (
+  <View style={styles.container}>
+    {/* Profile Header */}
+    <View style={styles.headerContainer}>
+      <Image
+        source={{ uri: userData.profileImageUrl }}
+        style={styles.profileImage}
+      />
+      <View style={styles.statsContainer}>
+        <Text style={styles.stat}>{userData.reviewsCount} Reviews</Text>
+        <Text style={styles.stat}>{userData.followersCount} Followers</Text>
+        <Text style={styles.stat}>{userData.followingCount} Following</Text>
       </View>
       <Text style={styles.bio}>{userData.bio}</Text>
-    </ScrollView>
-  );
+    </View>
+
+    {/* Reviews Feed */}
+    <FlatList
+      data={reviews}
+      renderItem={({ item }) => <ReviewItem review={item} />}
+      keyExtractor={(item) => item.id}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+      style={styles.reviewsFeed}
+    />
+  </View>
+);
 };
 
 const styles = StyleSheet.create({
