@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
 import { auth, db } from '../FirebaseConfig';
-import { collection, doc, onSnapshot, orderBy, query, where } from 'firebase/firestore';
+import { collection, doc, onSnapshot, query, where } from 'firebase/firestore';
 import navigation from '../navigation';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import ReviewItem from '../components/ReviewItem';
 
 export default function ProfileScreen() {
   const [userData, setUserData] = useState({
@@ -16,20 +15,24 @@ export default function ProfileScreen() {
     followersCount: 0,
     followingCount: 0,
     bio: '',
-    profileImageUrl: 'https://via.placeholder.com/150',
+    profileImageUrl: 'https://via.placeholder.com/150', // Default image in case profile image is not set
   });
-  const [userReviews, setUserReviews] = useState([]);
+
+  const navigation = useNavigation();
 
   useEffect(() => {
     const currentUserUid = auth.currentUser?.uid;
+
     if (currentUserUid) {
+      // Setup the user data listener
       const userRef = doc(db, 'users', currentUserUid);
       const unsubscribeUser = onSnapshot(userRef, (document) => {
         if (document.exists()) {
           const data = document.data();
-          setUserData(prevUserData => ({
+          setUserData((prevUserData) => ({
             ...prevUserData,
             username: data.username || 'Loading...',
+            // Don't overwrite reviewsCount here
             followers: data.followers || [],
             following: data.following || [],
             followersCount: data.followersCount || 0,
@@ -40,14 +43,15 @@ export default function ProfileScreen() {
         }
       });
 
+      // Setup the reviews count listener
       const reviewsRef = collection(db, 'reviews');
-      const q = query(reviewsRef, where('userId', '==', currentUserUid), orderBy('timestamp', 'desc'));
-      const unsubscribeReviews = onSnapshot(q, (snapshot) => {
-        const fetchedReviews = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
+      const reviewsQuery = query(reviewsRef, where('userId', '==', currentUserUid));
+      const unsubscribeReviews = onSnapshot(reviewsQuery, (querySnapshot) => {
+        const reviewsCount = querySnapshot.size;
+        setUserData((prevUserData) => ({
+          ...prevUserData,
+          reviewsCount, // Update just the reviews count
         }));
-        setUserReviews(fetchedReviews);
       });
 
       return () => {
@@ -56,29 +60,32 @@ export default function ProfileScreen() {
       };
     }
   }, [auth.currentUser]);
+  
+  // React.useLayoutEffect(() => {
+  //   navigation.setOptions({
+  //     headerLeft: () => (
+  //       <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 10 }}>
+  //         <Ionicons name="arrow-back" size={24} color="black" />
+  //       </TouchableOpacity>
+  //     ),
+  //   });
+  // }, [navigation]);
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <View style={styles.headerContainer}>
         <Image
           source={{ uri: userData.profileImageUrl }} // Use profile image URL from state
           style={styles.profileImage}
         />
-        <Text style={styles.username}>{userData.username}</Text>
         <View style={styles.statsContainer}>
           <Text style={styles.stat}>{userData.reviewsCount} Reviews</Text>
           <Text style={styles.stat}>{userData.followersCount} Followers</Text>
           <Text style={styles.stat}>{userData.followingCount} Following</Text>
         </View>
-        <Text style={styles.bio}>{userData.bio}</Text>
-        {/* You can place any other static content here, like a follow button */}
       </View>
-      <ScrollView style={styles.reviewsContainer}>
-        {userReviews.map((review) => (
-          <ReviewItem key={review.id} review={review} />
-        ))}
-      </ScrollView>
-    </View>
+      <Text style={styles.bio}>{userData.bio}</Text>
+    </ScrollView>
   );
 };
 
