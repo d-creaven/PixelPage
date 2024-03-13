@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Pressable, FlatList, RefreshControl } from 'react-native';
 import { auth, db } from '../FirebaseConfig';
 import { arrayRemove, arrayUnion, collection, doc, increment, onSnapshot, query, where, writeBatch } from 'firebase/firestore';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import ReviewItem from '../components/ReviewItem';
 
 const GivenUserProfileScreen = ({ route, navigation }) => {
   const [userData, setUserData] = useState({
@@ -16,11 +17,13 @@ const GivenUserProfileScreen = ({ route, navigation }) => {
     bio: '',
     profileImageUrl: 'https://via.placeholder.com/150',
   });
+  const [reviews, setReviews] = useState([]);
+  const [following, setFollowing] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const { userId } = route.params;
 
   useEffect(() => {
-    // Setup the reviews count listener
     if (userId) {
       const reviewsRef = collection(db, 'reviews');
       const reviewsQuery = query(reviewsRef, where('userId', '==', userId));
@@ -31,6 +34,13 @@ const GivenUserProfileScreen = ({ route, navigation }) => {
           ...prevUserData,
           reviewsCount: userReviewsCount, // Update the reviews count
         }));
+
+        const reviewsData = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setReviews(reviewsData);
+        setRefreshing(false);
       });
 
       return () => unsubscribeReviews();
@@ -44,7 +54,6 @@ const GivenUserProfileScreen = ({ route, navigation }) => {
         setUserData((prevUserData) => ({
           ...prevUserData,
           username: data.username || 'Loading...',
-          // Don't overwrite reviewsCount here since it's managed by a separate useEffect
           followers: data.followers || [],
           following: data.following || [],
           followersCount: data.followersCount || 0,
@@ -52,17 +61,13 @@ const GivenUserProfileScreen = ({ route, navigation }) => {
           bio: data.bio || '',
           profileImageUrl: data.profileImageUrl || 'https://via.placeholder.com/150',
         }));
-  
+
         navigation.setOptions({ headerTitle: data.username || 'Profile' });
         const isFollowing = data.followers?.includes(auth.currentUser?.uid);
         setFollowing(isFollowing);
-      } else {
-        // Handle the case where the document does not exist
       }
-    }, (error) => {
-      console.error("Error fetching user data: ", error);
     });
-  
+
     return () => unsubscribe();
   }, [userId, navigation]);
 
@@ -76,21 +81,16 @@ const GivenUserProfileScreen = ({ route, navigation }) => {
     });
   }, [navigation]);
 
-  const [following, setFollowing] = useState(false);
-
   const handleFollowPress = async () => {
-    const currentUserUid = auth.currentUser?.uid; // UID of the logged-in user
-    const profileUserUid = userId; // UID of the user being viewed
-  
-    // References to both users' documents in Firestore
+    const currentUserUid = auth.currentUser?.uid;
+    const profileUserUid = userId;
+
     const currentUserRef = doc(db, 'users', currentUserUid);
     const profileUserRef = doc(db, 'users', profileUserUid);
-  
+
     try {
-      // Start a batch write
       const batch = writeBatch(db);
-  
-      // Check if already following, then unfollow
+
       if (following) {
         batch.update(currentUserRef, {
           following: arrayRemove(profileUserUid),
@@ -100,9 +100,8 @@ const GivenUserProfileScreen = ({ route, navigation }) => {
           followers: arrayRemove(currentUserUid),
           followersCount: increment(-1)
         });
-        setFollowing(false); // Update following state to false
+        setFollowing(false);
       } else {
-        // If not already following, follow
         batch.update(currentUserRef, {
           following: arrayUnion(profileUserUid),
           followingCount: increment(1)
@@ -111,38 +110,45 @@ const GivenUserProfileScreen = ({ route, navigation }) => {
           followers: arrayUnion(currentUserUid),
           followersCount: increment(1)
         });
-        setFollowing(true); // Update following state to true
+        setFollowing(true);
       }
-  
-      // Commit the batch write
+
       await batch.commit();
     } catch (error) {
       console.error("Error updating follow status: ", error);
     }
   };
-  
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    // Add any additional refresh logic here if necessary
+  };
+
 
   return (
-    <SafeAreaView edges={["top"]} style={styles.container}>
-      <ScrollView style={styles.container}>
-        <View style={styles.headerContainer}>
-          <Image source={{ uri: userData.profileImageUrl }} style={styles.profileImage} />
-          <View style={styles.statsContainer}>
-            <Text style={styles.stat}>{userData.reviewsCount} Reviews</Text>
-            <Text style={styles.stat}>{userData.followersCount} Followers</Text>
-            <Text style={styles.stat}>{userData.followingCount} Following</Text>
-          </View>
+    <SafeAreaView edges={['top']} style={styles.container}>
+      <View style={styles.headerContainer}>
+        <Image source={{ uri: userData.profileImageUrl }} style={styles.profileImage} />
+        <View style={styles.statsContainer}>
+          <Text style={styles.stat}>{userData.reviewsCount} Reviews</Text>
+          <Text style={styles.stat}>{userData.followersCount} Followers</Text>
+          <Text style={styles.stat}>{userData.followingCount} Following</Text>
         </View>
         <Text style={styles.bio}>{userData.bio}</Text>
         <Pressable
-          style={[styles.button, following ? { backgroundColor: 'lightgray' } : {backgroundColor: '#47AA71'}]}
-          onPress={(handleFollowPress)}
+          style={[styles.button, following ? { backgroundColor: 'lightgray' } : { backgroundColor: '#47AA71' }]}
+          onPress={handleFollowPress}
         >
-          <Text style={styles.buttonText}>
-            {following ? 'Following' : 'Follow'}
-          </Text>
+          <Text style={styles.buttonText}>{following ? 'Following' : 'Follow'}</Text>
         </Pressable>
-      </ScrollView>
+      </View>
+      <FlatList
+        data={reviews}
+        renderItem={({ item }) => <ReviewItem review={item} />}
+        keyExtractor={item => item.id}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        contentContainerStyle={styles.flatListContentContainer}
+      />
     </SafeAreaView>
   );
 };
