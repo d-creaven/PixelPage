@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, increment, query, updateDoc, where } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, increment, onSnapshot, query, updateDoc, where } from 'firebase/firestore';
 import { auth, db } from '../FirebaseConfig';
 import CommentSection from './CommentSection';
 
@@ -9,10 +9,23 @@ import CommentSection from './CommentSection';
 const ReviewItem = ({ review }) => {
   const [isLiked, setIsLiked] = useState(false);
   const [showComments, setShowComments] = useState(false);
+  const [commentCount, setCommentCount] = useState(0);
+
+
+  useEffect(() => {
+    // Corrected path to fetch comments from the 'comments' collection
+    const commentsRef = collection(db, 'comments');
+    const q = query(commentsRef, where('reviewId', '==', review.id));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      setCommentCount(querySnapshot.size); // Update comment count in real-time
+    });
+
+    return () => unsubscribe(); // Clean up the listener
+  }, [review.id]);
 
   useEffect(() => {
     const checkIfLiked = async () => {
-      const likesRef = collection(db, 'userLikes'); // Assuming 'userLikes' is your collection name
+      const likesRef = collection(db, 'userLikes'); 
       const q = query(likesRef, where('userId', '==', auth.currentUser.uid), where('reviewId', '==', review.id));
   
       const querySnapshot = await getDocs(q);
@@ -23,7 +36,7 @@ const ReviewItem = ({ review }) => {
   }, [review.id]);
 
   const handleLikePress = async () => {
-    const likesRef = collection(db, 'userLikes'); // Your collection for tracking likes
+    const likesRef = collection(db, 'userLikes'); // collection for tracking likes
     const q = query(likesRef, where('userId', '==', auth.currentUser.uid), where('reviewId', '==', review.id));
   
     const querySnapshot = await getDocs(q);
@@ -97,6 +110,7 @@ const ReviewItem = ({ review }) => {
         <TouchableOpacity onPress={handleCommentPress}>
           <Ionicons name="chatbubble-outline" size={24} color="black" />
         </TouchableOpacity>
+        <Text style={styles.likeCount}>{commentCount}</Text>
       </View>
       {showComments && <CommentSection reviewId={review.id} />}
     </View>
