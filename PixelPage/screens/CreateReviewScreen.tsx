@@ -35,6 +35,16 @@ const CreateReviewScreen = ({ route, navigation }) => {
     const user = await fetchUserData();
 
     const reviewData = {
+      image: book.image,
+      title: book.title,
+      authors: book.authors,
+      averageRating: book.averageRating,
+      publishedDate: book.publishedDate,
+      genres: book.genres,
+      pageCount: book.pageCount,
+      description: book.description,
+      isbn: book.isbn,
+
       bookId,
       reviewText,
       rating,
@@ -43,7 +53,6 @@ const CreateReviewScreen = ({ route, navigation }) => {
       likes: 0, // Initializes likes count for the review
       likedByUser: [],
       comments: [], // Initializes an array to hold comments on the review
-      title: book.title,
       author: book.authors,
       cover: book.image,
       username: user.username,

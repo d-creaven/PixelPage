@@ -4,12 +4,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, increment, onSnapshot, query, updateDoc, where } from 'firebase/firestore';
 import { auth, db } from '../FirebaseConfig';
 import CommentSection from './CommentSection';
+import { useNavigation } from '@react-navigation/native';
 
 
 const ReviewItem = ({ review }) => {
   const [isLiked, setIsLiked] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [commentCount, setCommentCount] = useState(0);
+  const navigation = useNavigation();
 
 
   useEffect(() => {
@@ -81,6 +83,11 @@ const ReviewItem = ({ review }) => {
     return <View style={styles.starsContainer}>{stars}</View>;
   };
 
+  const navigateToBookDetails = () => {
+    console.log(review);
+    navigation.navigate('BookDetails', { book: review });
+  };
+
   return (
     <View style={styles.reviewCard}>
       <View style={styles.topBar}>
@@ -89,28 +96,16 @@ const ReviewItem = ({ review }) => {
       </View>
       <View style={styles.bookInfoContainer}>
         <Image source={{ uri: review.cover }} style={styles.bookCover} />
-        <View style={styles.titleContainer}>
+        <TouchableOpacity onPress={navigateToBookDetails} style={styles.titleContainer}>
+          {/* Adjust Text components to allow wrapping */}
           <Text style={styles.bookTitle}>{review.title}</Text>
           <Text style={styles.bookAuthor}>{review.author}</Text>
-        </View>
+        </TouchableOpacity>
       </View>
       {renderStars()}
       <Text style={styles.reviewText}>{review.reviewText}</Text>
       <View style={styles.interactionContainer}>
-        <View style={styles.likeContainer}>
-          <TouchableOpacity onPress={handleLikePress}>
-            <Ionicons
-              name={isLiked ? "heart" : "heart-outline"}
-              size={24}
-              color={isLiked ? "red" : "black"}
-            />
-          </TouchableOpacity>
-          <Text style={styles.likeCount}>{review.likes}</Text>
-        </View>
-        <TouchableOpacity onPress={handleCommentPress}>
-          <Ionicons name="chatbubble-outline" size={24} color="black" />
-        </TouchableOpacity>
-        <Text style={styles.likeCount}>{commentCount}</Text>
+        {/* Interaction icons and counts */}
       </View>
       {showComments && <CommentSection reviewId={review.id} />}
     </View>
@@ -146,10 +141,6 @@ const styles = StyleSheet.create({
     height: 150,
     resizeMode: 'contain',
   },
-  titleContainer: {
-    marginLeft: 10,
-    justifyContent: 'space-evenly',
-  },
   bookTitle: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -178,6 +169,10 @@ const styles = StyleSheet.create({
   },
   likeCount: {
     marginLeft: 5, // Adjust the space between the heart icon and the like count text
+  },
+  titleContainer: {
+    marginLeft: 10,
+    flex: 1, // Add flex: 1 to ensure it takes up only the available space
   },
 });
 
