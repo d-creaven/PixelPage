@@ -3,7 +3,7 @@ import { auth, db } from "../FirebaseConfig";
 import { collection, deleteDoc, doc, getDocs, setDoc } from "firebase/firestore";
 
 type MyBooksContextType = {
-  onToggleSaved: (book: Book) => void,
+  onToggleSaved: (book: Book, category: string) => void,
   isBookSaved: (book: Book) => boolean,
   savedBooks: Book[];
 };
@@ -53,23 +53,45 @@ const MyBooksProvider = ({ children }: Props) => {
     );
   }
 
-  const onToggleSaved = async (book: Book) => {
-    const userId = auth.currentUser.uid; // Assuming you have a way to get the current user's ID
+  const onToggleSaved = async (book: Book, category: string) => {
+    const userId = auth.currentUser.uid; // Ensure you have the current user's ID
+    
+    // Check if the book is already saved
+    const existingBookIndex = savedBooks.findIndex(savedBook => savedBook.isbn === book.isbn);
   
-    if (isBookSaved(book)) {
-      // If the book is already saved, remove it from Firestore and local state
-      const bookRef = doc(db, `users/${userId}/books`, book.isbn);
-      await deleteDoc(bookRef); // Remove from Firestore
+    if (existingBookIndex !== -1) {
+      // If the book is already saved
+      const savedBook = savedBooks[existingBookIndex];
   
-      setSavedBooks(currentBooks =>
-        currentBooks.filter(savedBook => savedBook.isbn !== book.isbn) // Remove from local state
-      );
+      // Decide to update the category or unsave the book
+      if (savedBook.category === category) {
+        // If the category is the same, the user is unsaving the book
+        const bookRef = doc(db, `users/${userId}/books`, book.isbn);
+        await deleteDoc(bookRef); // Remove from Firestore
+  
+        // Remove the book from the local state array
+        setSavedBooks(currentBooks => currentBooks.filter((_, index) => index !== existingBookIndex));
+      } else {
+        // If the category is different, update the book with the new category
+        const updatedBook = { ...savedBook, category }; // Update the book object with the new category
+        const bookRef = doc(db, `users/${userId}/books`, book.isbn);
+        await setDoc(bookRef, updatedBook); // Update Firestore
+  
+        // Update the book in the local state array
+        setSavedBooks(currentBooks => 
+          currentBooks.map((currentBook, index) => 
+            index === existingBookIndex ? updatedBook : currentBook
+          )
+        );
+      }
     } else {
-      // If the book is not saved, add it to Firestore and local state
+      // If the book is not saved, add it with the category
+      const newBook = { ...book, category }; // Create a new book object with the category
       const bookRef = doc(db, `users/${userId}/books`, book.isbn);
-      await setDoc(bookRef, book); // Add to Firestore
+      await setDoc(bookRef, newBook); // Add to Firestore
   
-      setSavedBooks(currentBooks => [book, ...currentBooks]); // Add to local state
+      // Add the new book to the local state array
+      setSavedBooks(currentBooks => [newBook, ...currentBooks]);
     }
   };
   

@@ -8,6 +8,7 @@ type Book = {
     pageCount: string,
     description: string,
     isbn: string,
+    category: string,
   };
 
   type BookProvider = "googleBooksSearch" | "openLibrarySearch"

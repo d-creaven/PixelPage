@@ -19,14 +19,7 @@ const BookItem = ({ book }: BookItemProps) => {
         <Text style={styles.title}>{book.title}</Text>
         <Text>by {book.authors?.join(", ")}</Text>
 
-        <Pressable
-          style={[styles.button, saved ? { backgroundColor: 'lightgray' } : {}]}
-          onPress={() => onToggleSaved(book)}
-        >
-          <Text style={styles.buttonText}>
-            {saved ? 'Remove' : 'Want to Read'}
-          </Text>
-        </Pressable>
+
 
       </View>
     </View>

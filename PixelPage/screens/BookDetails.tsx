@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import React from 'react';
+import React, { useState } from 'react';
 import { ScrollView, View, Text, Image, StyleSheet, TouchableOpacity, Button, Pressable } from 'react-native';
 import { useMyBooks } from '../context/MyBooksProvider';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import { Picker } from '@react-native-picker/picker';
 
 const BookDetailsScreen = ({ route }) => {
   // Assuming you're passing a `book` object in your navigation route params
@@ -17,12 +18,27 @@ const BookDetailsScreen = ({ route }) => {
 
   const [descriptionExpanded, setDescriptionExpanded] = React.useState(false);
 
+  const [selectedCategory, setSelectedCategory] = useState('');
+
   const handleReviewPress = () => {
     // Navigation to the CreateReview screen
     // Assuming 'CreateReview' is the name of your screen where users write reviews
     navigation.navigate('Create Review', { book });
   };
 
+  const handleSaveBook = () => {
+    if (saved) {
+      // If the book is already saved, unsave it
+      onToggleSaved(book, selectedCategory); // Assuming onToggleSaved can also handle unsaving
+    } else {
+      // Only save if a category has been selected
+      if (selectedCategory) {
+        onToggleSaved(book, selectedCategory);
+      } else {
+        alert("Please select a category before saving.");
+      }
+    }
+  };
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerLeft: () => (
@@ -70,23 +86,28 @@ const BookDetailsScreen = ({ route }) => {
         </View>
         <Text style={styles.pageCount}>{`${book.pageCount} pages`}</Text>
         <Text style={styles.publication}>{`First published: ${book.publishedDate}`}</Text>
-        {/* Implement dropdown or picker components for reading status and purchase format */}
-        <Pressable
-          style={[styles.button, saved ? { backgroundColor: 'lightgray' } : {backgroundColor: '#47AA71'}]}
-          onPress={() => onToggleSaved(book)}
+  
+        {/* Button container for Save and Review side by side */}
+        <View style={styles.buttonContainer}>
+        <TouchableOpacity onPress={handleSaveBook} style={saved ? styles.saveButton : styles.saveButton}>
+          <Text style={styles.buttonText}>{saved ? 'Unsave' : 'Save'}</Text>
+        </TouchableOpacity>
+          <TouchableOpacity onPress={handleReviewPress} style={styles.reviewButton}>
+            <Text style={styles.buttonText}>Review</Text>
+          </TouchableOpacity>
+        </View>
+  
+        {/* Picker for category selection */}
+        <Picker
+          selectedValue={selectedCategory}
+          onValueChange={(itemValue) => setSelectedCategory(itemValue)}
+          style={styles.picker}
         >
-          <Text style={styles.buttonText}>
-            {saved ? 'Remove' : 'Want to Read'}
-          </Text>
-        </Pressable>
-        <Pressable
-        style={[styles.button, { backgroundColor: '#FFA500', marginTop: 10 }]} // Example style, change as needed
-        onPress={handleReviewPress}
-      >
-        <Text style={styles.buttonText}>
-          Review
-        </Text>
-      </Pressable>
+          <Picker.Item label="Select a Category" value="" />
+          <Picker.Item label="Reading" value="Reading" />
+          <Picker.Item label="Want to Read" value="Want to Read" />
+          <Picker.Item label="Finished" value="Finished" />
+        </Picker>
       </View>
     </ScrollView>
   );
@@ -150,16 +171,41 @@ const styles = StyleSheet.create({
     padding: 7,
     paddingHorizontal: 15,
   },
-  buttonText:{
-    color: "white",
-    fontWeight: "600",
-  },
   showMoreButton: {
     padding: 10,
     alignItems: 'center'
   },
   showMoreText: {
     color: 'blue',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+  saveButton: {
+    flex: 1,
+    backgroundColor: '#007bff', // Example save button color
+    padding: 10,
+    borderRadius: 5,
+    marginRight: 5, // Add some space between the buttons
+  },
+  reviewButton: {
+    flex: 1,
+    backgroundColor: '#FFA500', // Example review button color
+    padding: 10,
+    borderRadius: 5,
+    marginLeft: 5, // Add some space between the buttons
+  },
+  buttonText: {
+    textAlign: 'center',
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  picker: {
+    marginTop: 20, // Add some space above the picker
+    width: '100%',
+    // Additional styles for the picker
   },
   // Add styles for dropdowns/pickers and any other additional elements
 });

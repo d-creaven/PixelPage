@@ -84,7 +84,6 @@ const ReviewItem = ({ review }) => {
   };
 
   const navigateToBookDetails = () => {
-    console.log(review);
     navigation.navigate('BookDetails', { book: review });
   };
 
