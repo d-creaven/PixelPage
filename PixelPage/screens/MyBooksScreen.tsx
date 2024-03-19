@@ -5,11 +5,48 @@ import BookItem from '../components/Bookitem';
 import { useNavigation } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 import { useLayoutEffect, useState } from 'react';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 export default function MyBooksScreen() {
   const { savedBooks } = useMyBooks();
   const navigation = useNavigation();
   const [selectedCategory, setSelectedCategory] = useState('All');
+
+  const CustomHeaderTitle = () => {
+    const [open, setOpen] = useState(false);
+    const [items, setItems] = useState([
+      { label: 'All', value: 'All' },
+      { label: 'Reading', value: 'Reading' },
+      { label: 'Want to Read', value: 'Want to Read' },
+      { label: 'Finished', value: 'Finished' }
+    ]);
+  
+    return (
+      <View style={{ flexDirection: 'row', alignItems: 'center', width: '100%' }}>
+        <DropDownPicker
+          open={open}
+          value={selectedCategory}
+          items={items}
+          setOpen={setOpen}
+          setValue={setSelectedCategory}
+          setItems={setItems}
+          listMode="SCROLLVIEW"
+          containerStyle={{
+            width: 100,
+            // Aligns the dropdown within its parent view
+          }}
+        />
+      </View>
+    );
+  };
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => <CustomHeaderTitle />,
+      headerTitle: '', // Clear the default title
+      // Ensure there's enough space for the headerLeft component, or it might be clipped or not fully visible.
+      headerLeftContainerStyle: { paddingLeft: 10 }, // Adjust the padding as needed
+    });
+  }, [navigation, selectedCategory]);
 
   const handleSelectBook = (book) => {
     navigation.navigate('BookDetails', { book });
@@ -26,18 +63,6 @@ export default function MyBooksScreen() {
   
   return (
     <View style={styles.container}>
-      {/* Category selection (e.g., using a Picker as before) */}
-      <Picker
-        selectedValue={selectedCategory}
-        onValueChange={(itemValue) => setSelectedCategory(itemValue)}
-        style={styles.picker}
-      >
-        <Picker.Item label="All" value="All" />
-        <Picker.Item label="Reading" value="Reading" />
-        <Picker.Item label="Want to Read" value="Want to Read" />
-        <Picker.Item label="Finished" value="Finished" />
-      </Picker>
-
       {/* List of books */}
       <FlatList
         data={booksToDisplay}
