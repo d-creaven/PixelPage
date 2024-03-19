@@ -105,6 +105,20 @@ const ReviewItem = ({ review }) => {
       <Text style={styles.reviewText}>{review.reviewText}</Text>
       <View style={styles.interactionContainer}>
         {/* Interaction icons and counts */}
+        <View style={styles.likeContainer}>
+          <TouchableOpacity onPress={handleLikePress}>
+            <Ionicons
+              name={isLiked ? "heart" : "heart-outline"}
+              size={24}
+              color={isLiked ? "red" : "black"}
+            />
+          </TouchableOpacity>
+          <Text style={styles.likeCount}>{review.likes}</Text>
+        </View>
+        <TouchableOpacity onPress={handleCommentPress}>
+          <Ionicons name="chatbubble-outline" size={24} color="black" />
+        </TouchableOpacity>
+        <Text style={styles.likeCount}>{commentCount}</Text>
       </View>
       {showComments && <CommentSection reviewId={review.id} />}
     </View>
