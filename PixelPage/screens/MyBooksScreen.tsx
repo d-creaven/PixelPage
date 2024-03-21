@@ -32,7 +32,7 @@ export default function MyBooksScreen() {
           setItems={setItems}
           listMode="SCROLLVIEW"
           containerStyle={{
-            width: 100,
+            width: 130,
             // Aligns the dropdown within its parent view
           }}
         />

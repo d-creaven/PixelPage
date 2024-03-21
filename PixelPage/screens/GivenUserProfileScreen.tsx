@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Pressable, FlatList, RefreshControl } from 'react-native';
 import { auth, db } from '../FirebaseConfig';
-import { arrayRemove, arrayUnion, collection, doc, increment, onSnapshot, query, where, writeBatch } from 'firebase/firestore';
+import { arrayRemove, arrayUnion, collection, doc, increment, onSnapshot, orderBy, query, where, writeBatch } from 'firebase/firestore';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import ReviewItem from '../components/ReviewItem';
@@ -26,7 +26,7 @@ const GivenUserProfileScreen = ({ route, navigation }) => {
   useEffect(() => {
     if (userId) {
       const reviewsRef = collection(db, 'reviews');
-      const reviewsQuery = query(reviewsRef, where('userId', '==', userId));
+      const reviewsQuery = query(reviewsRef, where('userId', '==', userId), orderBy('timestamp','desc'));
 
       const unsubscribeReviews = onSnapshot(reviewsQuery, (querySnapshot) => {
         const userReviewsCount = querySnapshot.size;
