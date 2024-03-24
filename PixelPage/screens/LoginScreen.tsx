@@ -63,6 +63,7 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'
         placeholder="Email"
         value={email}
         onChangeText={(text) => setEmail(text)}
+        keyboardType="email-address"
       />
       <TextInput
         style={styles.input}
