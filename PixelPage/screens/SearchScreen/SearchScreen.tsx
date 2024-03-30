@@ -48,7 +48,16 @@ export default function SearchScreen() {
           placeholder={`Search ${searchMode === "books" ? "Books" : "Users"}`} 
           style={styles.input}
         />
-        <Button title='Search' onPress={() => searchMode === "books" ? runQuery({variables: {q: search}}) : searchUsers(search)}/>
+        <Button 
+          title='Search' 
+          onPress={() => {
+            if (searchMode === "books" && search.trim()) { // Check if 'search' is not just empty or whitespace
+              runQuery({ variables: { q: search.trim() } });
+            } else if (searchMode === "users" && search.trim()) {
+              searchUsers(search.trim());
+            }
+          }}
+        />
       </View>
 
       <View style={styles.tabs}> 
