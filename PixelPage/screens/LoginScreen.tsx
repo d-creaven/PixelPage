@@ -1,4 +1,4 @@
-import { ActivityIndicator, Button, KeyboardAvoidingView, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, Button, KeyboardAvoidingView, LogBox, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { Text, View } from '../components/Themed';
 import { RootStackScreenProps } from '../types';
 import { useState } from 'react';
@@ -6,6 +6,8 @@ import { auth } from '../FirebaseConfig';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { setDoc, doc } from 'firebase/firestore'; 
 import { db } from '../FirebaseConfig';
+
+LogBox.ignoreAllLogs();
 
 export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'>) {
   const [email, setEmail] = useState('');

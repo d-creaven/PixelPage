@@ -21,9 +21,6 @@ export default function ModalScreen({ navigation }) {
       >
         <Text style={styles.optionText}>Edit Profile</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('Settings')}>
-        <Text style={styles.optionText}>Settings</Text>
-      </TouchableOpacity>
       <TouchableOpacity style={styles.option} onPress={handleSignOut}>
         <Text style={styles.optionText}>Sign Out</Text>
       </TouchableOpacity>
