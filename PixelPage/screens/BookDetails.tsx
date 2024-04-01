@@ -185,17 +185,17 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     flex: 1,
-    backgroundColor: '#007bff', // Example save button color
+    backgroundColor: '#007bff',
     padding: 10,
     borderRadius: 5,
-    marginRight: 5, // Add some space between the buttons
+    marginRight: 5, 
   },
   reviewButton: {
     flex: 1,
-    backgroundColor: '#FFA500', // Example review button color
+    backgroundColor: '#FFA500', 
     padding: 10,
     borderRadius: 5,
-    marginLeft: 5, // Add some space between the buttons
+    marginLeft: 5, 
   },
   buttonText: {
     textAlign: 'center',
@@ -203,11 +203,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   picker: {
-    marginTop: 20, // Add some space above the picker
+    marginTop: 20, 
     width: '100%',
-    // Additional styles for the picker
   },
-  // Add styles for dropdowns/pickers and any other additional elements
 });
 
 export default BookDetailsScreen;

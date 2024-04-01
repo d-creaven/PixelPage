@@ -178,14 +178,14 @@ const styles = StyleSheet.create({
   likeContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 10, // Adjust spacing between the like container and the next element if needed
+    marginRight: 10,
   },
   likeCount: {
-    marginLeft: 5, // Adjust the space between the heart icon and the like count text
+    marginLeft: 5,
   },
   titleContainer: {
     marginLeft: 10,
-    flex: 1, // Add flex: 1 to ensure it takes up only the available space
+    flex: 1,
   },
 });
 

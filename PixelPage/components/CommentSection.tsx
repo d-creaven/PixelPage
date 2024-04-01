@@ -47,8 +47,8 @@ const CommentSection = ({ reviewId }) => {
       await addDoc(collection(db, 'comments'), {
         reviewId,
         text: newComment,
-        userId: auth.currentUser.uid, // Assuming you're using Firebase Authentication
-        timestamp: new Date(), // Optional: for sorting or displaying when the comment was posted
+        userId: auth.currentUser.uid,
+        timestamp: new Date(),
       });
       setNewComment(''); // Clear input after submission
     }

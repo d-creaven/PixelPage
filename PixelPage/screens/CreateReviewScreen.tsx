@@ -146,7 +146,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-  // Add other styles as needed
 });
 
 export default CreateReviewScreen;

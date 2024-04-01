@@ -44,7 +44,7 @@ export default function MyBooksScreen() {
       headerLeft: () => <CustomHeaderTitle />,
       headerTitle: '', // Clear the default title
       // Ensure there's enough space for the headerLeft component, or it might be clipped or not fully visible.
-      headerLeftContainerStyle: { paddingLeft: 10 }, // Adjust the padding as needed
+      headerLeftContainerStyle: { paddingLeft: 10 },
     });
   }, [navigation, selectedCategory]);
 
@@ -71,7 +71,6 @@ export default function MyBooksScreen() {
           <TouchableOpacity onPress={() => handleSelectBook(item)}>
             <BookItem book={item} />
           </TouchableOpacity>
-          // Render your book item component
         )}
       />
     </View>
