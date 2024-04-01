@@ -53,7 +53,7 @@ export default function SearchScreen() {
           onPress={() => {
             if (searchMode === "books" && search.trim()) { // Check if 'search' is not just empty or whitespace
               runQuery({ variables: { q: search.trim() } });
-            } else if (searchMode === "users" && search.trim()) {
+            } else {
               searchUsers(search.trim());
             }
           }}
