@@ -3,6 +3,7 @@ import React from "react";
 import { useMyBooks } from "../context/MyBooksProvider";
 import Colors from "../constants/Colors";
 import useColorScheme from "../hooks/useColorScheme";
+import { Book } from "../props/Book";
 
 type BookItemProps = {
   book: Book;

@@ -34,7 +34,8 @@ module.exports = {
       }
     },
     web: {
-      favicon: "./assets/images/favicon.png"
+      favicon: "./assets/images/favicon.png",
+      bundler: "metro"
     },
     extra: {
       // Firebase configuration from environment variables

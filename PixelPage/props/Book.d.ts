@@ -1,4 +1,4 @@
-type Book = {
+export type Book = {
     image: string,
     title: string,
     authors: string[],
@@ -11,4 +11,4 @@ type Book = {
     category: string,
   };
 
-  type BookProvider = "googleBooksSearch" | "openLibrarySearch"
+export type BookProvider = "googleBooksSearch" | "openLibrarySearch"
