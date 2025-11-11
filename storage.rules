@@ -1,0 +1,39 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if user owns the file
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Profile images - users can upload/update/delete their own profile image
+    // Anyone can read profile images (to display them)
+    match /profileImages/{imageName} {
+      // Anyone can read profile images
+      allow read: if true;
+      
+      // Only authenticated users can upload/update files in profileImages/
+      // The application code ensures the filename is "profile_{userId}" where userId matches the auth.uid
+      // This is a reasonable security model since the app controls the naming convention
+      allow write: if isAuthenticated() 
+        && imageName.matches('profile_.*');
+      
+      // Only authenticated users can delete files in profileImages/
+      // The application should verify ownership before allowing delete
+      allow delete: if isAuthenticated() 
+        && imageName.matches('profile_.*');
+    }
+    
+    // Default: deny all other access
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
+

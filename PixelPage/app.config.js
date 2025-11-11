@@ -25,13 +25,21 @@ module.exports = {
       "**/*"
     ],
     ios: {
-      supportsTablet: true
+      supportsTablet: true,
+      infoPlist: {
+        NSPhotoLibraryUsageDescription: "This app needs access to your photo library to set your profile picture.",
+        NSPhotoLibraryAddUsageDescription: "This app needs access to save images to your photo library."
+      }
     },
     android: {
       adaptiveIcon: {
         foregroundImage: "./assets/images/adaptive-icon.png",
         backgroundColor: "#ffffff"
-      }
+      },
+      permissions: [
+        "READ_EXTERNAL_STORAGE",
+        "READ_MEDIA_IMAGES"
+      ]
     },
     web: {
       favicon: "./assets/images/favicon.png",
