@@ -109,9 +109,3 @@ See [DEVELOPMENT.md](./DEVELOPMENT.md) for more security details and best practi
 
 ---
 
-## 📱 Screenshots
-
-_Add screenshots of your app here to showcase the UI_
-
----
-
