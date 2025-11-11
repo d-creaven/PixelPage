@@ -28,36 +28,57 @@ const CreateReviewScreen = ({ route, navigation }) => {
     }
   };
 
-  const handleReviewSubmit = async (bookId, reviewText, rating) => {
+  const handleReviewSubmit = async (bookId: string, reviewText: string, rating: number) => {
+    // Validate required fields
+    if (!rating || rating === 0) {
+      alert('Please select a rating before submitting your review.');
+      return;
+    }
+
+    if (!reviewText.trim()) {
+      alert('Please write a review before submitting.');
+      return;
+    }
+
     // Assuming 'bookId' is the ID of the book being reviewed,
     // 'reviewText' is the text of the review,
     // and 'rating' is the rating given by the user.
     const user = await fetchUserData();
 
-    const reviewData = {
+    // Helper function to remove undefined values from an object
+    const removeUndefined = (obj: any) => {
+      const cleaned: any = {};
+      for (const key in obj) {
+        if (obj[key] !== undefined) {
+          cleaned[key] = obj[key];
+        }
+      }
+      return cleaned;
+    };
+
+    const reviewData = removeUndefined({
       image: book.image,
       title: book.title,
-      authors: book.authors,
+      authors: book.authors || [],
       averageRating: book.averageRating,
       publishedDate: book.publishedDate,
-      genres: book.genres,
+      genres: book.genres || [],
       pageCount: book.pageCount,
       description: book.description,
       isbn: book.isbn,
-
       bookId,
       reviewText,
       rating,
-      userId: auth.currentUser.uid, // Assuming you have access to the auth object
-      timestamp: new Date(), // Adds a timestamp to the review
-      likes: 0, // Initializes likes count for the review
+      userId: auth.currentUser.uid,
+      timestamp: new Date(),
+      likes: 0,
       likedByUser: [],
-      comments: [], // Initializes an array to hold comments on the review
-      author: book.authors,
+      comments: [],
+      author: book.authors || [],
       cover: book.image,
-      username: user.username,
-      profileImage: user.userProfileImage,
-    };
+      username: user.username || '',
+      profileImage: user.userProfileImage || '',
+    });
   
     try {
       // Reference to the reviews collection in Firestore
