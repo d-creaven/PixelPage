@@ -2,6 +2,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import * as Font from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
+import { Platform } from 'react-native';
 
 export default function useCachedResources() {
   const [isLoadingComplete, setLoadingComplete] = useState(false);
@@ -10,7 +11,10 @@ export default function useCachedResources() {
   useEffect(() => {
     async function loadResourcesAndDataAsync() {
       try {
-        SplashScreen.preventAutoHideAsync();
+        // Splash screen APIs may not work on web
+        if (Platform.OS !== 'web') {
+          SplashScreen.preventAutoHideAsync();
+        }
 
         // Load fonts
         await Font.loadAsync({
@@ -22,7 +26,9 @@ export default function useCachedResources() {
         console.warn(e);
       } finally {
         setLoadingComplete(true);
-        SplashScreen.hideAsync();
+        if (Platform.OS !== 'web') {
+          SplashScreen.hideAsync();
+        }
       }
     }
 

@@ -1,11 +1,23 @@
 import React from 'react';
-import { StyleSheet, View, Text, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text } from './Themed';
+import Colors from '../constants/Colors';
+import useColorScheme from '../hooks/useColorScheme';
 
 const UserItem = ({ username, profileImageUrl, onPress }) => {
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme];
+
   return (
-    <TouchableOpacity style={styles.container} onPress={onPress}>
-      <Image source={{ uri: profileImageUrl }} style={styles.image} />
-      <Text style={styles.text}>{username}</Text>
+    <TouchableOpacity 
+      style={[styles.container, { borderColor: colors.border }]} 
+      onPress={onPress}
+    >
+      <Image 
+        source={{ uri: profileImageUrl || 'https://via.placeholder.com/150' }} 
+        style={styles.image} 
+      />
+      <Text style={[styles.text, { color: colors.text }]}>{username}</Text>
     </TouchableOpacity>
   );
 };
@@ -17,7 +29,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderBottomWidth: 1,
-    borderColor: '#e1e1e1',
   },
   image: {
     width: 50,

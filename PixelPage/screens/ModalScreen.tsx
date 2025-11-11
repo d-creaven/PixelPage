@@ -1,8 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { auth } from '../FirebaseConfig'; // Adjust the import path as needed
+import { StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text } from '../components/Themed';
+import { auth } from '../FirebaseConfig';
+import Colors from '../constants/Colors';
+import useColorScheme from '../hooks/useColorScheme';
 
 export default function ModalScreen({ navigation }) {
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme];
 
   const handleSignOut = () => {
     navigation.navigate('Profile');
@@ -11,18 +16,21 @@ export default function ModalScreen({ navigation }) {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
       <TouchableOpacity
-        style={styles.option}
+        style={[styles.option, { borderBottomColor: colors.border }]}
         onPress={() => {
           navigation.goBack();
           navigation.navigate('EditProfile'); // Navigates to the EditProfileScreen. // This will close the modal.
         }}
       >
-        <Text style={styles.optionText}>Edit Profile</Text>
+        <Text style={[styles.optionText, { color: colors.text }]}>Edit Profile</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.option} onPress={handleSignOut}>
-        <Text style={styles.optionText}>Sign Out</Text>
+      <TouchableOpacity 
+        style={[styles.option, { borderBottomColor: colors.border }]} 
+        onPress={handleSignOut}
+      >
+        <Text style={[styles.optionText, { color: colors.text }]}>Sign Out</Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -31,7 +39,6 @@ export default function ModalScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   title: {
     fontSize: 22,
@@ -43,7 +50,6 @@ const styles = StyleSheet.create({
   option: {
     paddingVertical: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
     marginLeft: 20,
   },
   optionText: {

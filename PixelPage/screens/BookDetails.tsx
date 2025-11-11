@@ -3,7 +3,8 @@ import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { ScrollView, View, Text, Image, StyleSheet, TouchableOpacity, Button, Pressable } from 'react-native';
 import { useMyBooks } from '../context/MyBooksProvider';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
+import Colors from '../constants/Colors';
+import useColorScheme from '../hooks/useColorScheme';
 import { Picker } from '@react-native-picker/picker';
 
 const BookDetailsScreen = ({ route }) => {
@@ -11,6 +12,8 @@ const BookDetailsScreen = ({ route }) => {
   const { book } = route.params;
 
   const {isBookSaved, onToggleSaved} = useMyBooks();
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme];
 
   const saved = isBookSaved(book);
 
@@ -43,22 +46,22 @@ const BookDetailsScreen = ({ route }) => {
     navigation.setOptions({
       headerLeft: () => (
         <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 10 }}>
-          <Ionicons name="arrow-back" size={24} color="black" />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
       ),
     });
-  }, [navigation]);
+  }, [navigation, colors.text]);
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
       <Image source={{ uri: book.image }} style={styles.bookCover} />
       <View style={styles.detailsContainer}>
-        <Text style={styles.title}>{book.title}</Text>
-        <Text style={styles.author}>{book.authors.join(', ')}</Text>
-        <Text style={styles.rating}>
+        <Text style={[styles.title, { color: colors.text }]}>{book.title}</Text>
+        <Text style={[styles.author, { color: colors.secondaryText }]}>{book.authors.join(', ')}</Text>
+        <Text style={[styles.rating, { color: colors.text }]}>
           {book.averageRating ? `Average Rating: ${book.averageRating}` : 'Rating not available'}
         </Text>
-        <Text style={styles.description}>
+        <Text style={[styles.description, { color: colors.text }]}>
           {book.description ? (
             descriptionExpanded ? 
             book.description : 
@@ -72,20 +75,20 @@ const BookDetailsScreen = ({ route }) => {
             onPress={() => setDescriptionExpanded(!descriptionExpanded)}
             style={styles.showMoreButton}
           >
-            <Text style={styles.showMoreText}>
+            <Text style={[styles.showMoreText, { color: colors.tint }]}>
               {descriptionExpanded ? 'Show Less' : 'Show More'}
             </Text>
           </Pressable>
         )}
         <View style={styles.genreContainer}>
           {book.genres && book.genres.map((genre) => (
-            <TouchableOpacity key={genre} style={styles.genreBadge}>
-              <Text style={styles.genreText}>{genre}</Text>
+            <TouchableOpacity key={genre} style={[styles.genreBadge, { backgroundColor: colors.genreBadge }]}>
+              <Text style={[styles.genreText, { color: colors.genreText }]}>{genre}</Text>
             </TouchableOpacity>
           ))}
         </View>
-        <Text style={styles.pageCount}>{`${book.pageCount} pages`}</Text>
-        <Text style={styles.publication}>{`First published: ${book.publishedDate}`}</Text>
+        <Text style={[styles.pageCount, { color: colors.text }]}>{`${book.pageCount} pages`}</Text>
+        <Text style={[styles.publication, { color: colors.text }]}>{`First published: ${book.publishedDate}`}</Text>
   
         {/* Button container for Save and Review side by side */}
         <View style={styles.buttonContainer}>
@@ -116,7 +119,6 @@ const BookDetailsScreen = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   bookCover: {
     width: '100%',
@@ -132,7 +134,6 @@ const styles = StyleSheet.create({
   },
   author: {
     fontSize: 18,
-    color: 'grey',
   },
   rating: {
     fontSize: 16,
@@ -147,7 +148,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   genreBadge: {
-    backgroundColor: 'lightgrey',
     borderRadius: 20,
     padding: 5,
     marginRight: 10,
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   button:{
-    backgroundColor: Colors.light.tint,
+    backgroundColor: '#46AA71', // Using the tint color directly
     alignSelf: "flex-start",
     marginTop: "auto",
     marginVertical: 10,
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   showMoreText: {
-    color: 'blue',
+    // Color set dynamically
   },
   buttonContainer: {
     flexDirection: 'row',

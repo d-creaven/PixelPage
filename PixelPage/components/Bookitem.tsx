@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, Image, Pressable } from "react-native";
 import React from "react";
 import { useMyBooks } from "../context/MyBooksProvider";
 import Colors from "../constants/Colors";
+import useColorScheme from "../hooks/useColorScheme";
 
 type BookItemProps = {
   book: Book;
@@ -9,15 +10,17 @@ type BookItemProps = {
 
 const BookItem = ({ book }: BookItemProps) => {
   const {isBookSaved, onToggleSaved} = useMyBooks();
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme];
 
   const saved = isBookSaved(book);
   
   return (
     <View style={styles.container}>
       <Image source={{ uri: book.image }} style={styles.image} />
-      <View style={styles.contentContainer}>
-        <Text style={styles.title}>{book.title}</Text>
-        <Text>by {book.authors?.join(", ")}</Text>
+      <View style={[styles.contentContainer, { borderColor: colors.border }]}>
+        <Text style={[styles.title, { color: colors.text }]}>{book.title}</Text>
+        <Text style={{ color: colors.secondaryText }}>by {book.authors?.join(", ")}</Text>
 
 
 
@@ -38,7 +41,6 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 4,
-    borderColor: "lightgray",
     borderBottomWidth: 0.5,
   },
   title: {

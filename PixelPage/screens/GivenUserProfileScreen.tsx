@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Pressable, FlatList, RefreshControl } from 'react-native';
+import { StyleSheet, Image, ScrollView, TouchableOpacity, Pressable, FlatList, RefreshControl } from 'react-native';
+import { View, Text } from '../components/Themed';
 import { auth, db } from '../FirebaseConfig';
 import { arrayRemove, arrayUnion, collection, doc, increment, onSnapshot, orderBy, query, where, writeBatch } from 'firebase/firestore';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import ReviewItem from '../components/ReviewItem';
+import Colors from '../constants/Colors';
+import useColorScheme from '../hooks/useColorScheme';
 
 const GivenUserProfileScreen = ({ route, navigation }) => {
   const [userData, setUserData] = useState({
@@ -20,6 +23,8 @@ const GivenUserProfileScreen = ({ route, navigation }) => {
   const [reviews, setReviews] = useState([]);
   const [following, setFollowing] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme];
 
   const { userId } = route.params;
 
@@ -75,11 +80,11 @@ const GivenUserProfileScreen = ({ route, navigation }) => {
     navigation.setOptions({
       headerLeft: () => (
         <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 10 }}>
-          <Ionicons name="arrow-back" size={24} color="black" />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
       ),
     });
-  }, [navigation]);
+  }, [navigation, colors.text]);
 
   const handleFollowPress = async () => {
     const currentUserUid = auth.currentUser?.uid;
@@ -126,17 +131,23 @@ const GivenUserProfileScreen = ({ route, navigation }) => {
 
 
   return (
-    <SafeAreaView edges={['top']} style={styles.container}>
+    <SafeAreaView edges={['top']} style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.headerContainer}>
         <Image source={{ uri: userData.profileImageUrl }} style={styles.profileImage} />
+        <Text style={[styles.username, { color: colors.text }]}>{userData.username}</Text>
         <View style={styles.statsContainer}>
-          <Text style={styles.stat}>{userData.reviewsCount} Reviews</Text>
-          <Text style={styles.stat}>{userData.followersCount} Followers</Text>
-          <Text style={styles.stat}>{userData.followingCount} Following</Text>
+          <Text style={[styles.stat, { color: colors.text }]}>{userData.reviewsCount} Reviews</Text>
+          <Text style={[styles.stat, { color: colors.text }]}>{userData.followersCount} Followers</Text>
+          <Text style={[styles.stat, { color: colors.text }]}>{userData.followingCount} Following</Text>
         </View>
-        <Text style={styles.bio}>{userData.bio}</Text>
+        <Text style={[styles.bio, { color: colors.secondaryText }]}>{userData.bio}</Text>
         <Pressable
-          style={[styles.button, following ? { backgroundColor: 'lightgray' } : { backgroundColor: '#47AA71' }]}
+          style={[
+            styles.button, 
+            following 
+              ? { backgroundColor: colors.border } 
+              : { backgroundColor: colors.tint }
+          ]}
           onPress={handleFollowPress}
         >
           <Text style={styles.buttonText}>{following ? 'Following' : 'Follow'}</Text>
@@ -147,7 +158,8 @@ const GivenUserProfileScreen = ({ route, navigation }) => {
         renderItem={({ item }) => <ReviewItem review={item} />}
         keyExtractor={item => item.id}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-        contentContainerStyle={styles.flatListContentContainer}
+        style={{ backgroundColor: colors.background }}
+        contentContainerStyle={{ backgroundColor: colors.background }}
       />
     </SafeAreaView>
   );
@@ -168,8 +180,9 @@ const styles = StyleSheet.create({
       marginBottom: 10,
     },
     username: {
-      fontSize: 20,
+      fontSize: 24,
       fontWeight: 'bold',
+      marginBottom: 10,
     },
     statsContainer: {
       flexDirection: 'row',
@@ -187,7 +200,6 @@ const styles = StyleSheet.create({
       textAlign: 'center',
     },
     button: {
-      backgroundColor: 'blue',
       marginHorizontal: 100,
       padding: 10,
       borderRadius: 5,

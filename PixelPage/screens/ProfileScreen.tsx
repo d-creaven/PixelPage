@@ -1,11 +1,14 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, FlatList, RefreshControl } from 'react-native';
+import { StyleSheet, Image, ScrollView, TouchableOpacity, FlatList, RefreshControl } from 'react-native';
+import { View, Text } from '../components/Themed';
 import { auth, db } from '../FirebaseConfig';
 import { collection, doc, onSnapshot, orderBy, query, where } from 'firebase/firestore';
 import navigation from '../navigation';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import ReviewItem from '../components/ReviewItem';
+import Colors from '../constants/Colors';
+import useColorScheme from '../hooks/useColorScheme';
 
 export default function ProfileScreen() {
   const [userData, setUserData] = useState({
@@ -20,6 +23,8 @@ export default function ProfileScreen() {
   });
   const [reviews, setReviews] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme];
 
   const navigation = useNavigation();
 
@@ -94,12 +99,13 @@ return (
         source={{ uri: userData.profileImageUrl }}
         style={styles.profileImage}
       />
+      <Text style={[styles.username, { color: colors.text }]}>{userData.username}</Text>
       <View style={styles.statsContainer}>
-        <Text style={styles.stat}>{userData.reviewsCount} Reviews</Text>
-        <Text style={styles.stat}>{userData.followersCount} Followers</Text>
-        <Text style={styles.stat}>{userData.followingCount} Following</Text>
+        <Text style={[styles.stat, { color: colors.text }]}>{userData.reviewsCount} Reviews</Text>
+        <Text style={[styles.stat, { color: colors.text }]}>{userData.followersCount} Followers</Text>
+        <Text style={[styles.stat, { color: colors.text }]}>{userData.followingCount} Following</Text>
       </View>
-      <Text style={styles.bio}>{userData.bio}</Text>
+      <Text style={[styles.bio, { color: colors.secondaryText }]}>{userData.bio}</Text>
     </View>
 
     {/* Reviews Feed */}
@@ -131,8 +137,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   username: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
+    marginBottom: 10,
   },
   statsContainer: {
     flexDirection: 'row',
@@ -148,6 +155,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     padding: 15,
     textAlign: 'center',
+  },
+  reviewsFeed: {
+    flex: 1,
   },
   button: {
     backgroundColor: 'blue',

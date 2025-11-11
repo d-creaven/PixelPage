@@ -4,7 +4,6 @@ export default StyleSheet.create({
     container: {
       flex: 1,
       padding: 10,
-      backgroundColor: "white",
     },
     title: {
       fontSize: 20,
@@ -21,10 +20,10 @@ export default StyleSheet.create({
     },
     input: {
       flex: 1,
-      borderColor: 'gainsboro',
       borderRadius: 5,
       padding: 10,
       marginVertical: 5,
+      borderWidth: 1,
     },
     tabs: {
       flexDirection: "row",

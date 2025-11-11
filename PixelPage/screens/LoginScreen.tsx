@@ -6,6 +6,8 @@ import { auth } from '../FirebaseConfig';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { setDoc, doc } from 'firebase/firestore'; 
 import { db } from '../FirebaseConfig';
+import Colors from '../constants/Colors';
+import useColorScheme from '../hooks/useColorScheme';
 
 LogBox.ignoreAllLogs();
 
@@ -13,6 +15,8 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme];
 
   const handleSignUp = async () => {
     setIsLoading(true);
@@ -61,28 +65,38 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'Login'
       {/* <KeyboardAvoidingView behavior="padding"> */}
       <Text style={styles.title}>Login</Text>
       <TextInput
-        style={styles.input}
+        style={[styles.input, { 
+          borderColor: colors.border, 
+          color: colors.text,
+          backgroundColor: colors.cardBackground 
+        }]}
         placeholder="Email"
+        placeholderTextColor={colors.placeholder}
         value={email}
         onChangeText={(text) => setEmail(text)}
         keyboardType="email-address"
       />
       <TextInput
-        style={styles.input}
+        style={[styles.input, { 
+          borderColor: colors.border, 
+          color: colors.text,
+          backgroundColor: colors.cardBackground 
+        }]}
         placeholder="Password"
+        placeholderTextColor={colors.placeholder}
         secureTextEntry
         value={password}
         onChangeText={(text) => setPassword(text)}
       />
       {isLoading ? (
-        <ActivityIndicator size={'large'} color={'blue'} />
+        <ActivityIndicator size={'large'} color={colors.tint} />
       ) : (
         <>
-          <TouchableOpacity onPress={handleLogin}>
-            <Text style={styles.input}>Login</Text>
+          <TouchableOpacity onPress={handleLogin} style={[styles.button, { backgroundColor: colors.tint }]}>
+            <Text style={[styles.buttonText, { color: 'white' }]}>Login</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={handleSignUp}>
-            <Text style={styles.input}>Sign Up</Text>
+          <TouchableOpacity onPress={handleSignUp} style={[styles.button, { backgroundColor: colors.tint }]}>
+            <Text style={[styles.buttonText, { color: 'white' }]}>Sign Up</Text>
           </TouchableOpacity>
         </>
       )}
@@ -107,7 +121,17 @@ const styles = StyleSheet.create({
     padding: 10,
     marginVertical: 10,
     borderWidth: 1,
-    borderColor: 'gray',
     borderRadius: 5,
+  },
+  button: {
+    width: '100%',
+    padding: 15,
+    marginVertical: 5,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

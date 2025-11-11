@@ -27,3 +27,41 @@ export const parseBook = (
       genres: item.subject,
     };
   };
+
+/**
+ * Search Google Books API directly (replaces StepZen GraphQL)
+ * @param query - Search query string
+ * @returns Promise with Google Books API response
+ */
+export const searchGoogleBooks = async (query: string): Promise<any> => {
+  try {
+    const encodedQuery = encodeURIComponent(query);
+    const url = `https://www.googleapis.com/books/v1/volumes?q=${encodedQuery}&maxResults=40&country=US`;
+    
+    console.log('Searching Google Books API:', url);
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('Google Books API response:', data);
+    
+    return {
+      googleBooksSearch: {
+        items: data.items || [],
+        totalItems: data.totalItems || 0,
+      },
+    };
+  } catch (error) {
+    console.error('Error searching Google Books:', error);
+    throw error;
+  }
+};

@@ -5,6 +5,8 @@ import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, increment, onSnaps
 import { auth, db } from '../FirebaseConfig';
 import CommentSection from './CommentSection';
 import { useNavigation } from '@react-navigation/native';
+import Colors from '../constants/Colors';
+import useColorScheme from '../hooks/useColorScheme';
 
 
 const ReviewItem = ({ review }) => {
@@ -12,6 +14,8 @@ const ReviewItem = ({ review }) => {
   const [showComments, setShowComments] = useState(false);
   const [commentCount, setCommentCount] = useState(0);
   const navigation = useNavigation();
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme];
 
 
   useEffect(() => {
@@ -70,13 +74,15 @@ const ReviewItem = ({ review }) => {
   // Renders rating stars
   const renderStars = () => {
     let stars = [];
+    const starColor = colorScheme === 'dark' ? '#ffd700' : '#ffd700';
+    const emptyStarColor = colorScheme === 'dark' ? '#666' : '#e3e3e3';
     for (let i = 1; i <= 5; i++) {
       stars.push(
         <Ionicons
           key={i}
           name={i <= review.rating ? "star" : "star-outline"}
           size={20}
-          color={i <= review.rating ? "#ffd700" : "#e3e3e3"}
+          color={i <= review.rating ? starColor : emptyStarColor}
         />
       );
     }
@@ -88,21 +94,21 @@ const ReviewItem = ({ review }) => {
   };
 
   return (
-    <View style={styles.reviewCard}>
+    <View style={[styles.reviewCard, { backgroundColor: colors.cardBackground }]}>
       <View style={styles.topBar}>
         <Image source={{ uri: review.profileImage }} style={styles.profileImage} />
-        <Text style={styles.username}>{review.username}</Text>
+        <Text style={[styles.username, { color: colors.text }]}>{review.username}</Text>
       </View>
       <View style={styles.bookInfoContainer}>
         <Image source={{ uri: review.cover }} style={styles.bookCover} />
         <TouchableOpacity onPress={navigateToBookDetails} style={styles.titleContainer}>
           {/* Adjust Text components to allow wrapping */}
-          <Text style={styles.bookTitle}>{review.title}</Text>
-          <Text style={styles.bookAuthor}>{review.author}</Text>
+          <Text style={[styles.bookTitle, { color: colors.text }]}>{review.title}</Text>
+          <Text style={[styles.bookAuthor, { color: colors.secondaryText }]}>{review.author}</Text>
         </TouchableOpacity>
       </View>
       {renderStars()}
-      <Text style={styles.reviewText}>{review.reviewText}</Text>
+      <Text style={[styles.reviewText, { color: colors.text }]}>{review.reviewText}</Text>
       <View style={styles.interactionContainer}>
         {/* Interaction icons and counts */}
         <View style={styles.likeContainer}>
@@ -110,15 +116,15 @@ const ReviewItem = ({ review }) => {
             <Ionicons
               name={isLiked ? "heart" : "heart-outline"}
               size={24}
-              color={isLiked ? "red" : "black"}
+              color={isLiked ? "red" : colors.text}
             />
           </TouchableOpacity>
-          <Text style={styles.likeCount}>{review.likes}</Text>
+          <Text style={[styles.likeCount, { color: colors.text }]}>{review.likes}</Text>
         </View>
         <TouchableOpacity onPress={handleCommentPress}>
-          <Ionicons name="chatbubble-outline" size={24} color="black" />
+          <Ionicons name="chatbubble-outline" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.likeCount}>{commentCount}</Text>
+        <Text style={[styles.likeCount, { color: colors.text }]}>{commentCount}</Text>
       </View>
       {showComments && <CommentSection reviewId={review.id} />}
     </View>
@@ -127,7 +133,6 @@ const ReviewItem = ({ review }) => {
 
 const styles = StyleSheet.create({
   reviewCard: {
-    backgroundColor: '#f9f9f9',
     padding: 20,
     marginVertical: 8,
     borderRadius: 5,
@@ -160,7 +165,6 @@ const styles = StyleSheet.create({
   },
   bookAuthor: {
     fontSize: 14,
-    color: 'grey',
   },
   starsContainer: {
     flexDirection: 'row',
