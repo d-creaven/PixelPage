@@ -15,19 +15,18 @@ const linking: LinkingOptions<RootStackParamList> = {
     screens: {
       Root: {
         screens: {
-          TabOne: {
-            screens: {
-              TabOneScreen: 'one',
-            },
-          },
-          TabTwo: {
-            screens: {
-              TabTwoScreen: 'two',
-            },
-          },
+          Feed: 'feed',
+          Search: 'search',
+          'My Books': 'my-books',
+          Profile: 'profile',
         },
       },
+      Login: 'login',
       Modal: 'modal',
+      BookDetails: 'book/:bookId',
+      EditProfile: 'edit-profile',
+      GivenUserProfile: 'user/:userId',
+      'Create Review': 'create-review',
       NotFound: '*',
     },
   },

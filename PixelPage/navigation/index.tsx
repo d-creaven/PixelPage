@@ -47,21 +47,25 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function RootNavigator() {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
+      setLoading(false);
     });
+    return unsubscribe;
   }, []);
   
+  // Show nothing while checking auth state to prevent flash
+  if (loading) {
+    return null;
+  }
+  
   return (
-    <Stack.Navigator>
-      {user ? (
-        // If user is logged in, go directly to Main App
-        <Stack.Screen name="Root" component={BottomTabNavigator} options={{ headerShown: false }} />
-      ) : (
-        // If no user, show Login Screen
-        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-      )}
+    <Stack.Navigator initialRouteName={user ? "Root" : "Login"}>
+      <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Root" component={BottomTabNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
       <Stack.Group screenOptions={{ presentation: 'modal' }}>
         <Stack.Screen 
