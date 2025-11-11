@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Build outputs
+.expo/
+dist/
+web-build/
+
+# Generated files
+*.log
+coverage/
+
+# Config files that shouldn't be formatted
+package-lock.json
+

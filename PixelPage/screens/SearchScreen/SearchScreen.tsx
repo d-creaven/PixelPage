@@ -1,6 +1,6 @@
 import { ActivityIndicator, FlatList, TextInput, Button, TouchableOpacity } from "react-native";
 import { Text, View } from "../../components/Themed";
-import BookItem from "../../components/Bookitem";
+import BookItem from "../../components/BookItem";
 import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { parseBook, searchGoogleBooks } from "../../services/bookService";

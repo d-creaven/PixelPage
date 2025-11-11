@@ -1,7 +1,7 @@
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { View } from '../components/Themed';
 import { useMyBooks } from '../context/MyBooksProvider';
-import BookItem from '../components/Bookitem';
+import BookItem from '../components/BookItem';
 import { useNavigation } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 import { useLayoutEffect, useState } from 'react';
