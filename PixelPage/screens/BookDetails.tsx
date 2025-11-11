@@ -5,13 +5,13 @@ import { ScrollView, View, Text, Image, StyleSheet, TouchableOpacity, Button, Pr
 import { useMyBooks } from '../context/MyBooksProvider';
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
-import { Picker } from '@react-native-picker/picker';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 const BookDetailsScreen = ({ route }) => {
   // Assuming you're passing a `book` object in your navigation route params
   const { book } = route.params;
 
-  const {isBookSaved, onToggleSaved} = useMyBooks();
+  const {isBookSaved, onToggleSaved, savedBooks} = useMyBooks();
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme];
 
@@ -22,6 +22,21 @@ const BookDetailsScreen = ({ route }) => {
   const [descriptionExpanded, setDescriptionExpanded] = React.useState(false);
 
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [categoryPickerOpen, setCategoryPickerOpen] = useState(false);
+  const [categoryItems, setCategoryItems] = useState([
+    { label: 'Select a Category', value: '' },
+    { label: 'Reading', value: 'Reading' },
+    { label: 'Want to Read', value: 'Want to Read' },
+    { label: 'Finished', value: 'Finished' }
+  ]);
+
+  // Update selectedCategory when savedBooks changes
+  React.useEffect(() => {
+    const savedBook = savedBooks.find(savedBook => savedBook.isbn === book.isbn);
+    if (savedBook?.category) {
+      setSelectedCategory(savedBook.category);
+    }
+  }, [savedBooks, book.isbn]);
 
   const handleReviewPress = () => {
     // Navigation to the CreateReview screen
@@ -29,17 +44,25 @@ const BookDetailsScreen = ({ route }) => {
     navigation.navigate('Create Review', { book });
   };
 
-  const handleSaveBook = () => {
-    if (saved) {
-      // If the book is already saved, unsave it
-      onToggleSaved(book, selectedCategory); // Assuming onToggleSaved can also handle unsaving
-    } else {
-      // Only save if a category has been selected
-      if (selectedCategory) {
-        onToggleSaved(book, selectedCategory);
+  const handleSaveBook = async () => {
+    try {
+      if (saved) {
+        // If the book is already saved, get the current category and unsave it
+        const savedBook = savedBooks.find(savedBook => savedBook.isbn === book.isbn);
+        if (savedBook && savedBook.category) {
+          await onToggleSaved(book, savedBook.category); // Pass the current category to unsave
+        }
       } else {
-        alert("Please select a category before saving.");
+        // Only save if a category has been selected
+        if (selectedCategory) {
+          await onToggleSaved(book, selectedCategory);
+        } else {
+          alert("Please select a category before saving.");
+        }
       }
+    } catch (error) {
+      console.error('Error saving book:', error);
+      alert(`Failed to ${saved ? 'unsave' : 'save'} book. Please try again.`);
     }
   };
   React.useLayoutEffect(() => {
@@ -100,17 +123,31 @@ const BookDetailsScreen = ({ route }) => {
           </TouchableOpacity>
         </View>
   
-        {/* Picker for category selection */}
-        <Picker
-          selectedValue={selectedCategory}
-          onValueChange={(itemValue) => setSelectedCategory(itemValue)}
-          style={styles.picker}
-        >
-          <Picker.Item label="Select a Category" value="" />
-          <Picker.Item label="Reading" value="Reading" />
-          <Picker.Item label="Want to Read" value="Want to Read" />
-          <Picker.Item label="Finished" value="Finished" />
-        </Picker>
+        {/* Category selector - using DropDownPicker for web compatibility */}
+        <View style={styles.categoryContainer}>
+          <DropDownPicker
+            open={categoryPickerOpen}
+            value={selectedCategory}
+            items={categoryItems}
+            setOpen={setCategoryPickerOpen}
+            setValue={setSelectedCategory}
+            setItems={setCategoryItems}
+            placeholder="Select a Category"
+            style={[styles.categoryPicker, { 
+              backgroundColor: colors.cardBackground,
+              borderColor: colors.border 
+            }]}
+            textStyle={{ color: colors.text }}
+            placeholderStyle={{ color: colors.placeholder }}
+            dropDownContainerStyle={{ 
+              backgroundColor: colors.cardBackground,
+              borderColor: colors.border 
+            }}
+            listMode="SCROLLVIEW"
+            zIndex={3000}
+            zIndexInverse={1000}
+          />
+        </View>
       </View>
     </ScrollView>
   );
@@ -202,9 +239,12 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
   },
-  picker: {
-    marginTop: 20, 
-    width: '100%',
+  categoryContainer: {
+    marginTop: 20,
+    zIndex: 1000,
+  },
+  categoryPicker: {
+    borderRadius: 5,
   },
 });
 
