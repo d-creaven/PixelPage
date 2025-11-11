@@ -21,8 +21,17 @@ service cloud.firestore {
       // Users can create their own profile
       allow create: if isOwner(userId);
       
-      // Allow users to update their own profile, including following/followers
-      allow update: if isOwner(userId);
+      // Allow users to update their own profile
+      // Also allow authenticated users to update followers/followersCount of any user (for follow functionality)
+      // This ensures other critical fields cannot be modified by non-owners
+      allow update: if isOwner(userId) 
+        || (isAuthenticated() 
+            && request.resource.data.username == resource.data.username
+            && request.resource.data.bio == resource.data.bio
+            && request.resource.data.email == resource.data.email
+            && request.resource.data.uid == resource.data.uid
+            && request.resource.data.following == resource.data.following
+            && request.resource.data.followingCount == resource.data.followingCount);
       
       // Users can delete their own profile
       allow delete: if isOwner(userId);
