@@ -57,11 +57,6 @@ _Project Supervisor: Karen Young_
 - **Firebase Storage** - Image storage
 - **Google Books API** - Book search and data
 
-### Development Tools
-- **ESLint** - Code linting
-- **Prettier** - Code formatting
-- **Jest** - Testing framework
-
 ---
 
 ## 📁 Project Structure
@@ -120,4 +115,3 @@ _Add screenshots of your app here to showcase the UI_
 
 ---
 
-**Built with ❤️ using React Native and Expo**
