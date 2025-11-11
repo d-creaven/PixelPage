@@ -4,13 +4,14 @@ import { View, Text } from '../components/Themed';
 import { auth } from '../FirebaseConfig';
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
+import { RootStackScreenProps } from '../types';
 
-export default function ModalScreen({ navigation }) {
+export default function ModalScreen({ navigation }: RootStackScreenProps<'Modal'>) {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme];
 
   const handleSignOut = () => {
-    navigation.navigate('Profile');
+    navigation.navigate('Root', { screen: 'Profile' });
     auth.signOut().then(() => {
     });
   };

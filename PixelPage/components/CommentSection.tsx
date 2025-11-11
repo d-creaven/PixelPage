@@ -3,23 +3,30 @@ import React, { useState, useEffect } from 'react';
 import { View, TextInput, Button, FlatList, Text, StyleSheet } from 'react-native';
 import { auth, db } from '../FirebaseConfig';
 
-const CommentSection = ({ reviewId }) => {
-  const [comments, setComments] = useState([]);
+type Comment = {
+  id: string;
+  userId: string;
+  text: string;
+  userName?: string;
+};
+
+const CommentSection = ({ reviewId }: { reviewId: string }) => {
+  const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
 
   useEffect(() => {
     const commentsRef = collection(db, 'comments');
     const q = query(commentsRef, where('reviewId', '==', reviewId));
   
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const fetchedComments = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
-      }));
+      })) as Array<{ id: string; userId: string; text: string }>;
   
       // Asynchronously update comments with usernames
       const updateCommentsWithUsernames = async () => {
-        const updatedComments = await Promise.all(fetchedComments.map(async comment => {
+        const updatedComments = await Promise.all(fetchedComments.map(async (comment): Promise<Comment> => {
           try {
             const userRef = doc(db, 'users', comment.userId);
             const userSnap = await getDoc(userRef);
@@ -29,7 +36,7 @@ const CommentSection = ({ reviewId }) => {
             };
           } catch (error) {
             console.error("Error fetching user data:", error);
-            return comment; // Return the comment as is if fetching username fails
+            return { ...comment, userName: 'Anonymous' }; // Return the comment as is if fetching username fails
           }
         }));
   
@@ -43,6 +50,7 @@ const CommentSection = ({ reviewId }) => {
   }, [reviewId]);
 
   const handleCommentSubmit = async () => {
+    if (!auth.currentUser) return;
     if (newComment.trim() !== '') {
       await addDoc(collection(db, 'comments'), {
         reviewId,

@@ -1,6 +1,7 @@
 import { Timestamp } from "firebase/firestore"
 
-type Review = {
+export type Review = {
+    id?: string,
     bookId: string,
     reviewText: string,
     rating: number,

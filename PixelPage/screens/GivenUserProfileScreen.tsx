@@ -8,19 +8,21 @@ import { Ionicons } from '@expo/vector-icons';
 import ReviewItem from '../components/ReviewItem';
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
+import { RootStackScreenProps } from '../types';
+import { Review } from '../props/Review';
 
-const GivenUserProfileScreen = ({ route, navigation }) => {
+const GivenUserProfileScreen = ({ route, navigation }: RootStackScreenProps<'GivenUserProfile'>) => {
   const [userData, setUserData] = useState({
     username: 'Loading...',
     reviewsCount: 0,
-    followers: [],
-    following: [],
+    followers: [] as string[],
+    following: [] as string[],
     followersCount: 0,
     followingCount: 0,
     bio: '',
     profileImageUrl: 'https://via.placeholder.com/150',
   });
-  const [reviews, setReviews] = useState([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [following, setFollowing] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const colorScheme = useColorScheme();
@@ -40,10 +42,10 @@ const GivenUserProfileScreen = ({ route, navigation }) => {
           reviewsCount: userReviewsCount, // Update the reviews count
         }));
 
-        const reviewsData = querySnapshot.docs.map(doc => ({
+        const reviewsData: Review[] = querySnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data(),
-        }));
+        } as Review));
         setReviews(reviewsData);
         setRefreshing(false);
       });
@@ -87,7 +89,8 @@ const GivenUserProfileScreen = ({ route, navigation }) => {
   }, [navigation, colors.text]);
 
   const handleFollowPress = async () => {
-    const currentUserUid = auth.currentUser?.uid;
+    if (!auth.currentUser) return;
+    const currentUserUid = auth.currentUser.uid;
     const profileUserUid = userId;
 
     const currentUserRef = doc(db, 'users', currentUserUid);
@@ -155,8 +158,8 @@ const GivenUserProfileScreen = ({ route, navigation }) => {
       </View>
       <FlatList
         data={reviews}
-        renderItem={({ item }) => <ReviewItem review={item} />}
-        keyExtractor={item => item.id}
+        renderItem={({ item }: { item: Review }) => <ReviewItem review={item} />}
+        keyExtractor={item => item.id || ''}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         style={{ backgroundColor: colors.background }}
         contentContainerStyle={{ backgroundColor: colors.background }}

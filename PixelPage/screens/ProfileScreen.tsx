@@ -9,19 +9,20 @@ import { Ionicons } from '@expo/vector-icons';
 import ReviewItem from '../components/ReviewItem';
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
+import { Review } from '../props/Review';
 
 export default function ProfileScreen() {
   const [userData, setUserData] = useState({
     username: 'Loading...',
     reviewsCount: 0,
-    followers: [],
-    following: [],
+    followers: [] as string[],
+    following: [] as string[],
     followersCount: 0,
     followingCount: 0,
     bio: '',
     profileImageUrl: 'https://via.placeholder.com/150',
   });
-  const [reviews, setReviews] = useState([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme];
@@ -59,14 +60,14 @@ export default function ProfileScreen() {
     }
   }, [auth.currentUser]);
 
-  const fetchReviews = async (userId) => {
+  const fetchReviews = async (userId: string) => {
     const reviewsRef = collection(db, 'reviews');
     const q = query(reviewsRef, where('userId', '==', userId), orderBy('timestamp', 'desc'));
   
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const fetchedReviews = [];
+      const fetchedReviews: Review[] = [];
       snapshot.forEach((doc) => {
-        fetchedReviews.push({ id: doc.id, ...doc.data() });
+        fetchedReviews.push({ id: doc.id, ...doc.data() } as Review);
       });
       setReviews(fetchedReviews);
       setRefreshing(false);
@@ -111,8 +112,8 @@ return (
     {/* Reviews Feed */}
     <FlatList
       data={reviews}
-      renderItem={({ item }) => <ReviewItem review={item} />}
-      keyExtractor={(item) => item.id}
+      renderItem={({ item }: { item: Review }) => <ReviewItem review={item} />}
+      keyExtractor={(item) => item.id || ''}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }

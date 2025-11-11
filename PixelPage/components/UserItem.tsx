@@ -4,7 +4,7 @@ import { View, Text } from './Themed';
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 
-const UserItem = ({ username, profileImageUrl, onPress }) => {
+const UserItem = ({ username, profileImageUrl, onPress }: { username: string; profileImageUrl?: string; onPress: () => void }) => {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme];
 

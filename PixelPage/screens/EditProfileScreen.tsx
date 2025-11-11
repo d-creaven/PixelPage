@@ -8,8 +8,9 @@ import * as ImagePicker from 'expo-image-picker';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
+import { RootStackScreenProps } from '../types';
 
-export default function EditProfileScreen({ navigation }) {
+export default function EditProfileScreen({ navigation }: RootStackScreenProps<'EditProfile'>) {
   const [username, setUsername] = useState('');
   const [bio, setBio] = useState('');
   const [profileImage, setProfileImage] = useState<string | null>('');

@@ -15,21 +15,21 @@ import useColorScheme from "../../hooks/useColorScheme";
 export default function SearchScreen() {
   const [search, setSearch] = useState("");
   const [searchMode, setSearchMode] = useState<"books" | "users">("books");
-  const [booksData, setBooksData] = useState([]);
+  const [booksData, setBooksData] = useState<any[]>([]);
   const [booksLoading, setBooksLoading] = useState(false);
   const [booksError, setBooksError] = useState<Error | null>(null);
-  const [usersData, setUsersData] = useState([]);
+  const [usersData, setUsersData] = useState<Array<{ username: string; profileImageUrl?: string; userId: string }>>([]);
   const [usersLoading, setUsersLoading] = useState(false);
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme];
 
   const navigation = useNavigation();
 
-  const handleSelectBook = (book) => {
+  const handleSelectBook = (book: any) => {
     navigation.navigate('BookDetails', { book });
   };
 
-  const handleSelectUser = (userId) => {
+  const handleSelectUser = (userId: string) => {
     navigation.navigate('GivenUserProfile', { userId });
   };
 
@@ -57,7 +57,7 @@ export default function SearchScreen() {
     }
   };
 
-  const searchUsers = async (searchText) => {
+  const searchUsers = async (searchText: string) => {
     const trimmedSearch = searchText?.trim();
     if (!trimmedSearch) {
       setUsersData([]);
@@ -82,35 +82,37 @@ export default function SearchScreen() {
         
         const querySnapshot = await getDocs(q);
         console.log("Query snapshot size:", querySnapshot.size);
-        const users = [];
+        const users: Array<{ username: string; profileImageUrl?: string; userId: string }> = [];
         querySnapshot.forEach((doc) => {
           const userData = doc.data();
           console.log("Found user:", userData.username);
           // Filter to ensure username contains the search text (case-insensitive)
           if (userData.username && userData.username.toLowerCase().includes(searchLower)) {
-            users.push({ ...userData, userId: doc.id });
+            users.push({ ...userData, userId: doc.id } as { username: string; profileImageUrl?: string; userId: string });
           }
         });
         
         console.log("Users found:", users.length);
         setUsersData(users);
-      } catch (queryError) {
+      } catch (queryError: unknown) {
         // If range query fails (e.g., missing index), fetch all users and filter client-side
-        console.log("Range query failed, fetching all users:", queryError.message);
+        const errorMessage = queryError instanceof Error ? queryError.message : 'Unknown error';
+        console.log("Range query failed, fetching all users:", errorMessage);
         const allUsersSnapshot = await getDocs(usersRef);
-        const users = [];
+        const users: Array<{ username: string; profileImageUrl?: string; userId: string }> = [];
         allUsersSnapshot.forEach((doc) => {
           const userData = doc.data();
           if (userData.username && userData.username.toLowerCase().includes(searchLower)) {
-            users.push({ ...userData, userId: doc.id });
+            users.push({ ...userData, userId: doc.id } as { username: string; profileImageUrl?: string; userId: string });
           }
         });
         console.log("Users found (fallback):", users.length);
         setUsersData(users);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error searching users:", error);
-      console.error("Error details:", error.message);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error("Error details:", errorMessage);
       setUsersData([]);
     } finally {
       setUsersLoading(false);

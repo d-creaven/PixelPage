@@ -1,3 +1,5 @@
+import { Book, BookProvider } from "../props/Book.d";
+
 export const parseBook = (
     item: any,
     provider: BookProvider

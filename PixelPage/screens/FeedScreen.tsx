@@ -5,9 +5,11 @@ import { auth, db } from '../FirebaseConfig';
 import { collection, query, where, onSnapshot, orderBy, doc, getDoc } from 'firebase/firestore';
 import ReviewItem from '../components/ReviewItem';
 import { useFocusEffect } from '@react-navigation/native';
+import { RootTabScreenProps } from '../types';
+import { Review } from '../props/Review';
 
-const FeedScreen = ({ navigation, route }) => {
-  const [reviews, setReviews] = useState([]);
+const FeedScreen = ({ navigation, route }: RootTabScreenProps<'Feed'>) => {
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const flatListRef = useRef<FlatList | null>(null);
 
@@ -19,15 +21,16 @@ const FeedScreen = ({ navigation, route }) => {
 
   useFocusEffect(
     React.useCallback(() => {
-      if (route.params?.refresh) {
+      if ((route.params as any)?.refresh) {
         scrollToTop(); // Call scrollToTop only if the refresh parameter is set
       }
       return () => {};
-    }, [route.params?.refresh])
+    }, [(route.params as any)?.refresh])
   );
 
   // Define fetchReviews function outside of useEffect
   const fetchReviews = async () => {
+    if (!auth.currentUser) return;
     const userRef = collection(db, 'users');
     const userDoc = await doc(userRef, auth.currentUser.uid);
     const userSnap = await getDoc(userDoc);
@@ -43,9 +46,9 @@ const FeedScreen = ({ navigation, route }) => {
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const fetchedReviews = [];
+      const fetchedReviews: Review[] = [];
       snapshot.forEach((doc) => {
-        fetchedReviews.push({ id: doc.id, ...doc.data() });
+        fetchedReviews.push({ id: doc.id, ...doc.data() } as Review);
       });
       setReviews(fetchedReviews);
       setRefreshing(false); // Stop refreshing after data is fetched
@@ -63,7 +66,7 @@ const FeedScreen = ({ navigation, route }) => {
     fetchReviews(); // Call fetchReviews when refreshing
   }, []);
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({ item }: { item: Review }) => (
     <ReviewItem review={item} />
   );
 
@@ -72,7 +75,7 @@ const FeedScreen = ({ navigation, route }) => {
       <FlatList
         data={reviews}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id || ''}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}

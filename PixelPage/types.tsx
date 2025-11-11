@@ -22,8 +22,12 @@ export type RootStackParamList = {
     book: Book;
   };
   EditProfile: undefined;
-  GivenUserProfile: undefined;
-  "Create Review": undefined;
+  GivenUserProfile: {
+    userId: string;
+  };
+  "Create Review": {
+    book: Book;
+  };
 };
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> = NativeStackScreenProps<

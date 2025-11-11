@@ -1,6 +1,8 @@
 import { ReactNode, createContext, useContext, useState, useEffect } from "react";
 import { auth, db } from "../FirebaseConfig";
 import { collection, deleteDoc, doc, getDocs, setDoc } from "firebase/firestore";
+import { Book } from "../props/Book.d";
+import { User } from "firebase/auth";
 
 type MyBooksContextType = {
   onToggleSaved: (book: Book, category: string) => void,
@@ -21,7 +23,7 @@ type Props = {
 const MyBooksProvider = ({ children }: Props) => {
   const [savedBooks, setSavedBooks] = useState<Book[]>([]);
   const [loaded, setLoaded] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
 
   useEffect(() => {
@@ -121,7 +123,7 @@ const MyBooksProvider = ({ children }: Props) => {
     }
   };
   
-  const saveBook = async (userId, bookId, bookDetails, isSaving) => {
+  const saveBook = async (userId: string, bookId: string, bookDetails: Book, isSaving: boolean) => {
     const bookRef = doc(db, `users/${userId}/books`, bookId);
     if (isSaving) {
       await setDoc(bookRef, bookDetails);
@@ -131,6 +133,7 @@ const MyBooksProvider = ({ children }: Props) => {
   };
 
   const persistData = async () => {
+    if (!auth.currentUser) return;
     const userId = auth.currentUser.uid;
     savedBooks.forEach(async (book) => {
       const bookRef = doc(db, `users/${userId}/books`, book.isbn);

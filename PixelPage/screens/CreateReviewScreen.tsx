@@ -3,13 +3,15 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-nativ
 import { Ionicons } from '@expo/vector-icons';
 import { addDoc, collection, doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../FirebaseConfig';
+import { RootStackScreenProps } from '../types';
 
-const CreateReviewScreen = ({ route, navigation }) => {
+const CreateReviewScreen = ({ route, navigation }: RootStackScreenProps<'Create Review'>) => {
   const [reviewText, setReviewText] = useState('');
   const [rating, setRating] = useState(0);
   const { book } = route.params;
 
   const fetchUserData = async () => {
+    if (!auth.currentUser) return { username: '', userProfileImage: '' };
     const userRef = doc(db, 'users', auth.currentUser.uid);
     const userSnap = await getDoc(userRef);
   
@@ -69,7 +71,7 @@ const CreateReviewScreen = ({ route, navigation }) => {
       bookId,
       reviewText,
       rating,
-      userId: auth.currentUser.uid,
+      userId: auth.currentUser?.uid || '',
       timestamp: new Date(),
       likes: 0,
       likedByUser: [],
@@ -86,7 +88,7 @@ const CreateReviewScreen = ({ route, navigation }) => {
       // Adding the new review to the Firestore collection
       await addDoc(reviewsRef, reviewData);
       console.log('Review submitted successfully!');
-      navigation.navigate('Feed', { refresh: true });
+      navigation.navigate('Root', { screen: 'Feed', params: { refresh: true } as any });
     } catch (error) {
       console.error('Error submitting review: ', error);
     }

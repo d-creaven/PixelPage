@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 import { useLayoutEffect, useState } from 'react';
 import DropDownPicker from 'react-native-dropdown-picker';
+import { Book } from '../props/Book.d';
 
 export default function MyBooksScreen() {
   const { savedBooks } = useMyBooks();
@@ -48,7 +49,7 @@ export default function MyBooksScreen() {
     });
   }, [navigation, selectedCategory]);
 
-  const handleSelectBook = (book) => {
+  const handleSelectBook = (book: Book) => {
     navigation.navigate('BookDetails', { book });
   };
 

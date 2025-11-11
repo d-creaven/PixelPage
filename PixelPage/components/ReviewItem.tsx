@@ -7,9 +7,9 @@ import CommentSection from './CommentSection';
 import { useNavigation } from '@react-navigation/native';
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
+import { Review } from '../props/Review';
 
-
-const ReviewItem = ({ review }) => {
+const ReviewItem = ({ review }: { review: Review }) => {
   const [isLiked, setIsLiked] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [commentCount, setCommentCount] = useState(0);
@@ -31,6 +31,7 @@ const ReviewItem = ({ review }) => {
 
   useEffect(() => {
     const checkIfLiked = async () => {
+      if (!auth.currentUser || !review.id) return;
       const likesRef = collection(db, 'userLikes'); 
       const q = query(likesRef, where('userId', '==', auth.currentUser.uid), where('reviewId', '==', review.id));
   
@@ -42,6 +43,7 @@ const ReviewItem = ({ review }) => {
   }, [review.id]);
 
   const handleLikePress = async () => {
+    if (!auth.currentUser || !review.id) return;
     const likesRef = collection(db, 'userLikes'); // collection for tracking likes
     const q = query(likesRef, where('userId', '==', auth.currentUser.uid), where('reviewId', '==', review.id));
   
@@ -96,7 +98,7 @@ const ReviewItem = ({ review }) => {
   return (
     <View style={[styles.reviewCard, { backgroundColor: colors.cardBackground }]}>
       <View style={styles.topBar}>
-        <Image source={{ uri: review.profileImage }} style={styles.profileImage} />
+        <Image source={{ uri: review.userProfileImage }} style={styles.profileImage} />
         <Text style={[styles.username, { color: colors.text }]}>{review.username}</Text>
       </View>
       <View style={styles.bookInfoContainer}>
@@ -104,7 +106,7 @@ const ReviewItem = ({ review }) => {
         <TouchableOpacity onPress={navigateToBookDetails} style={styles.titleContainer}>
           {/* Adjust Text components to allow wrapping */}
           <Text style={[styles.bookTitle, { color: colors.text }]}>{review.title}</Text>
-          <Text style={[styles.bookAuthor, { color: colors.secondaryText }]}>{review.author}</Text>
+          <Text style={[styles.bookAuthor, { color: colors.secondaryText }]}>{Array.isArray(review.authors) ? review.authors.join(', ') : review.authors}</Text>
         </TouchableOpacity>
       </View>
       {renderStars()}
@@ -126,7 +128,7 @@ const ReviewItem = ({ review }) => {
         </TouchableOpacity>
         <Text style={[styles.likeCount, { color: colors.text }]}>{commentCount}</Text>
       </View>
-      {showComments && <CommentSection reviewId={review.id} />}
+      {showComments && review.id && <CommentSection reviewId={review.id} />}
     </View>
   );
 };

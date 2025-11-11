@@ -6,8 +6,9 @@ import { useMyBooks } from '../context/MyBooksProvider';
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 import DropDownPicker from 'react-native-dropdown-picker';
+import { RootStackScreenProps } from '../types';
 
-const BookDetailsScreen = ({ route }) => {
+const BookDetailsScreen = ({ route }: RootStackScreenProps<'BookDetails'>) => {
   // Assuming you're passing a `book` object in your navigation route params
   const { book } = route.params;
 
@@ -104,7 +105,7 @@ const BookDetailsScreen = ({ route }) => {
           </Pressable>
         )}
         <View style={styles.genreContainer}>
-          {book.genres && book.genres.map((genre) => (
+          {book.genres && book.genres.map((genre: string) => (
             <TouchableOpacity key={genre} style={[styles.genreBadge, { backgroundColor: colors.genreBadge }]}>
               <Text style={[styles.genreText, { color: colors.genreText }]}>{genre}</Text>
             </TouchableOpacity>
