@@ -11,5 +11,16 @@ defaultConfig.resolver.unstable_enablePackageExports = false;
 // Web-specific configuration
 defaultConfig.resolver.platforms = ['ios', 'android', 'native', 'web'];
 
+// Ensure web platform is properly handled
+defaultConfig.transformer = {
+  ...defaultConfig.transformer,
+  getTransformOptions: async () => ({
+    transform: {
+      experimentalImportSupport: false,
+      inlineRequires: true,
+    },
+  }),
+};
+
 module.exports = defaultConfig;
 

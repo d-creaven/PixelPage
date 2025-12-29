@@ -1,30 +1,36 @@
-import { View, Text, StyleSheet, Image, Pressable } from "react-native";
+import { View, Text, StyleSheet, Image } from "react-native";
 import React from "react";
 import { useMyBooks } from "../context/MyBooksProvider";
 import Colors from "../constants/Colors";
 import useColorScheme from "../hooks/useColorScheme";
-import { Book } from "../props/Book";
+import { Book } from "../props/Book.d";
 
 type BookItemProps = {
   book: Book;
 };
 
 const BookItem = ({ book }: BookItemProps) => {
-  const {isBookSaved, onToggleSaved} = useMyBooks();
+  const { isBookSaved, onToggleSaved } = useMyBooks();
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme];
 
   const saved = isBookSaved(book);
   
+  // Handle missing or invalid data
+  if (!book) {
+    return null;
+  }
+  
   return (
     <View style={styles.container}>
-      <Image source={{ uri: book.image }} style={styles.image} />
+      {book.image && (
+        <Image source={{ uri: book.image }} style={styles.image} />
+      )}
       <View style={[styles.contentContainer, { borderColor: colors.border }]}>
-        <Text style={[styles.title, { color: colors.text }]}>{book.title}</Text>
-        <Text style={{ color: colors.secondaryText }}>by {book.authors?.join(", ")}</Text>
-
-
-
+        <Text style={[styles.title, { color: colors.text }]}>{book.title || 'Untitled'}</Text>
+        {book.authors && book.authors.length > 0 && (
+          <Text style={{ color: colors.secondaryText }}>by {book.authors.join(", ")}</Text>
+        )}
       </View>
     </View>
   );
@@ -48,7 +54,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "500",
   },
-  button:{
+  button: {
     backgroundColor: Colors.light.tint,
     alignSelf: "flex-start",
     marginTop: "auto",
@@ -57,7 +63,7 @@ const styles = StyleSheet.create({
     padding: 7,
     paddingHorizontal: 15,
   },
-  buttonText:{
+  buttonText: {
     color: "white",
     fontWeight: "600",
   },

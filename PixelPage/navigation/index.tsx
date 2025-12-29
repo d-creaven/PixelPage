@@ -8,7 +8,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as React from 'react';
-import { ColorSchemeName, Pressable } from 'react-native';
+import { ColorSchemeName, Pressable, View, ActivityIndicator } from 'react-native';
 
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
@@ -29,9 +29,13 @@ import GivenUserProfileScreen from '../screens/GivenUserProfileScreen';
 import CreateReviewScreen from '../screens/CreateReviewScreen';
 import FeedScreen from '../screens/FeedScreen';
 
+// Create a navigation ref to enable programmatic navigation
+export const navigationRef = React.createRef<any>();
+
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
   return (
     <NavigationContainer
+      ref={navigationRef}
       linking={LinkingConfiguration}
       theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <RootNavigator />
@@ -48,24 +52,48 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 function RootNavigator() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const previousUserRef = React.useRef<User | null>(null);
   
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      const previousUser = previousUserRef.current;
+      previousUserRef.current = currentUser;
+      setUser(currentUser);
       setLoading(false);
+      
+      // Navigate based on auth state changes (only if state actually changed)
+      if (navigationRef.current?.isReady()) {
+        if (currentUser && !previousUser) {
+          // User just logged in, navigate to Root
+          navigationRef.current.reset({
+            index: 0,
+            routes: [{ name: 'Root' }],
+          });
+        } else if (!currentUser && previousUser) {
+          // User just logged out, navigate to Login
+          navigationRef.current.reset({
+            index: 0,
+            routes: [{ name: 'Login' }],
+          });
+        }
+      }
     });
     return unsubscribe;
   }, []);
   
-  // Show nothing while checking auth state to prevent flash
+  // Show loading indicator while checking auth state
   if (loading) {
-    return null;
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
   }
   
   return (
     <Stack.Navigator initialRouteName={user ? "Root" : "Login"}>
       <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Root" component={BottomTabNavigator} options={{ headerShown: false }} />
+      <Stack.Screen name="Root" component={BottomTabNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
       <Stack.Group screenOptions={{ presentation: 'modal' }}>
         <Stack.Screen 

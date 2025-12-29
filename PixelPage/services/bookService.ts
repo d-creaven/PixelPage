@@ -6,26 +6,28 @@ export const parseBook = (
     ): Book => {
     if(provider === "googleBooksSearch") {
       return {
-        title: item.volumeInfo.title,
-        image: item.volumeInfo.imageLinks?.thumbnail,
-        authors: item.volumeInfo.authors,
-        isbn: item.volumeInfo.industryIdentifiers?.[0]?.identifier,
-        averageRating: item.volumeInfo.averageRating,
-        publishedDate: item.volumeInfo.publishedDate,
-        pageCount: item.volumeInfo.pageCount,
-        description: item.volumeInfo.description,
+        title: item.volumeInfo?.title || 'Untitled',
+        image: item.volumeInfo?.imageLinks?.thumbnail || item.volumeInfo?.imageLinks?.smallThumbnail || 'https://via.placeholder.com/128x192?text=No+Image',
+        authors: item.volumeInfo?.authors || ['Unknown Author'],
+        isbn: item.volumeInfo?.industryIdentifiers?.[0]?.identifier || item.id || 'no-isbn',
+        averageRating: item.volumeInfo?.averageRating?.toString(),
+        publishedDate: item.volumeInfo?.publishedDate,
+        pageCount: item.volumeInfo?.pageCount?.toString(),
+        description: item.volumeInfo?.description,
         genres: item.volumeInfo?.categories,
       };
     }
     return {
-      title: item.title,
-      image: `https://covers.openlibrary.org/b/olid/${item.cover_edition_key}-M.jpg`,
-      authors: item.author_name,
-      isbn: item.isbn?.[0],
-      averageRating: item.ratings_average,
-      publishedDate: item.publish_date,
-      pageCount: item.pageCount,
-      description: item.description,
+      title: item.title || 'Untitled',
+      image: item.cover_edition_key 
+        ? `https://covers.openlibrary.org/b/olid/${item.cover_edition_key}-M.jpg`
+        : 'https://via.placeholder.com/128x192?text=No+Image',
+      authors: item.author_name || ['Unknown Author'],
+      isbn: item.isbn?.[0] || item.cover_edition_key || 'no-isbn',
+      averageRating: item.ratings_average?.toString(),
+      publishedDate: item.publish_date?.[0],
+      pageCount: item.number_of_pages_median?.toString(),
+      description: item.first_sentence?.[0],
       genres: item.subject,
     };
   };

@@ -92,7 +92,20 @@ const ReviewItem = ({ review }: { review: Review }) => {
   };
 
   const navigateToBookDetails = () => {
-    navigation.navigate('BookDetails', { book: review });
+    // Convert Review to Book format for navigation
+    const book = {
+      image: review.cover,
+      title: review.title,
+      authors: Array.isArray(review.authors) ? review.authors : [review.authors],
+      isbn: review.bookId, // Use bookId as isbn
+      averageRating: undefined,
+      publishedDate: undefined,
+      genres: undefined,
+      pageCount: undefined,
+      description: undefined,
+      category: undefined,
+    };
+    navigation.navigate('BookDetails', { book });
   };
 
   return (
